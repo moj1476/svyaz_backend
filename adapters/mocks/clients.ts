@@ -11,7 +11,6 @@ import { ReadService as Presence } from '../../apps/presence/src/application';
 import { ReadService as Search } from '../../apps/search/src/application';
 import { BusinessService as Workspace } from '../../apps/workspace/src/operations';
 import type { Clients, DataMap } from '../../packages/contracts/src';
-import { labData } from '../../packages/lab-data/src';
 import { MemoryStore } from './memory-store';
 
 export type LocalStores = {
@@ -20,17 +19,17 @@ export type LocalStores = {
     : TransactionStore<DataMap[K]>;
 };
 
-export function createMockClients(): Clients {
+export function createMockClients(data: DataMap): Clients {
   const stores = {
-    identity: new MemoryStore(labData.identity),
-    workspace: new MemoryStore(labData.workspace),
-    messaging: new MemoryStore(labData.messaging),
-    files: new MemoryStore(labData.files),
-    notifications: new MemoryStore(labData.notifications),
-    calls: new MemoryStore(labData.calls),
-    audit: new MemoryStore(labData.audit),
-    presence: new MemoryStore(labData.presence),
-    search: new MemoryStore(labData.search),
+    identity: new MemoryStore(data.identity),
+    workspace: new MemoryStore(data.workspace),
+    messaging: new MemoryStore(data.messaging),
+    files: new MemoryStore(data.files),
+    notifications: new MemoryStore(data.notifications),
+    calls: new MemoryStore(data.calls),
+    audit: new MemoryStore(data.audit),
+    presence: new MemoryStore(data.presence),
+    search: new MemoryStore(data.search),
   } satisfies { [K in keyof DataMap]: MemoryStore<DataMap[K]> };
 
   return composeClients(stores);

@@ -17,7 +17,5 @@ export async function bootstrap() {
     throw new Error('Некорректное значение PORT');
 
   await app.listen(port, '127.0.0.1');
-  console.log(
-    `Связь: dev-only GraphQL http://127.0.0.1:${port}/graphql (service stubs, default user alice)`,
-  );
+  console.log(`Связь: локальный GraphQL API http://127.0.0.1:${port}/graphql`);
 }

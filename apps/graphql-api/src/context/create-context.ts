@@ -1,19 +1,23 @@
 import { GraphQLError } from 'graphql';
 import { randomUUID } from 'node:crypto';
-import { services, type ServiceName } from '../../../../packages/contracts/src';
+import {
+  services,
+  type ServiceName,
+  type User,
+} from '../../../../packages/contracts/src';
 import { DomainError } from '../../../../packages/contracts/src/errors';
-import { labData } from '../../../../packages/lab-data/src';
 import type { QueryContext } from './query-context';
 import type { RequestData } from './request-data';
 export function createContext(
   headers: Record<string, string | undefined>,
   data: RequestData,
+  users: readonly User[],
 ): QueryContext {
-  const login = headers['x-lab-user'] ?? 'alice';
-  const user = labData.identity.users.find((u) => u.login === login);
+  const login = headers['x-lab-user'] ?? users[0]?.login;
+  const user = users.find((u) => u.login === login);
 
   if (!user)
-    throw new GraphQLError('Неизвестный учебный пользователь', {
+    throw new GraphQLError('Неизвестный локальный пользователь', {
       extensions: { code: 'UNAUTHENTICATED' },
     });
 
