@@ -141,6 +141,12 @@ input SendMessageInput {
   threadRootId: ID
   fileIds: [ID!]! = []
 }
+input UpdateConversationInput {
+  conversationId: ID!
+  title: String!
+  expectedVersion: Long!
+  idempotencyKey: String!
+}
 input EditMessageInput {
   messageId: ID!
   body: String!
@@ -275,6 +281,7 @@ type Mutation {
   ): MembershipPayload!
   updateWorkspacePolicy(input: UpdateWorkspacePolicyInput!): PolicyPayload!
   createConversation(input: CreateConversationInput!): ConversationPayload!
+  updateConversation(input: UpdateConversationInput!): ConversationPayload!
   addConversationMember(conversationId: ID!, userId: ID!): ConversationPayload!
   archiveConversation(
     conversationId: ID!

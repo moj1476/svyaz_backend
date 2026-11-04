@@ -14,6 +14,7 @@
     "check": "pnpm prisma:validate && pnpm format:check && pnpm lint && pnpm typecheck",
     "start": "node --env-file=.env dist/apps/graphql-api/src/main.js",
     "start:mock": "node --env-file=.env dist/apps/graphql-api/src/main.js",
+    "start:read": "node --env-file=.env dist/apps/graphql-api/src/main.js --read-only",
     "start:lab4": "node --env-file=.env dist/apps/graphql-api/src/main.js --lab4",
     "dev": "tsx --env-file=.env apps/graphql-api/src/main.ts",
     "infra:up": "docker compose --env-file .env -f infra/compose.yaml up -d --wait",

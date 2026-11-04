@@ -21,6 +21,7 @@ export interface AccessClient {
   visibleUserIds(context: RequestContext): Promise<string[]>;
   messageIds(context: RequestContext): Promise<string[]>;
   recordingFileIds(context: RequestContext): Promise<string[]>;
+  recordingUsesFile(context: RequestContext, fileId: string): Promise<boolean>;
   searchDocument(context: RequestContext, document: SearchDocument): Promise<boolean>;
 }
 

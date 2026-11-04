@@ -32,11 +32,26 @@ export async function startCall(
   if (!['AUDIO', 'VIDEO'].includes(String(input.mode)))
     throw new DomainError('VALIDATION', 'Неверный режим звонка');
 
-  if (Array.isArray(input.inviteeIds) && input.inviteeIds.length)
-    throw new DomainError(
-      'VALIDATION',
-      'Приглашения во звонок будут реализованы с доставкой уведомлений',
-    );
+  const inviteeIds = [...new Set(input.inviteeIds ?? [])].filter(
+    (userId) => userId !== context.userId,
+  );
+
+  if ((input.inviteeIds?.length ?? 0) > 100)
+    throw new DomainError('VALIDATION', 'Не более 100 приглашённых', 'inviteeIds');
+
+  for (const userId of inviteeIds) {
+    if (
+      !(await domain.access.userExists(userId, context)) ||
+      !(await domain.access.conversationIds({ ...context, userId })).includes(
+        conversationId,
+      )
+    )
+      throw new DomainError(
+        'VALIDATION',
+        'Приглашённый не имеет доступа к обсуждению',
+        'inviteeIds',
+      );
+  }
 
   const current = data.calls.find(
     (call) =>
@@ -67,6 +82,16 @@ export async function startCall(
     joinedAt: now,
     leftAt: null,
   });
+
+  for (const userId of inviteeIds)
+    data.participants.push({
+      id: randomUUID(),
+      callId: call.id,
+      userId,
+      status: 'INVITED',
+      joinedAt: null,
+      leftAt: null,
+    });
 
   return { call };
 }

@@ -33,6 +33,13 @@ export async function leaveCall(
   ) {
     call.status = 'ENDED';
     call.endedAt = participant.leftAt;
+
+    for (const invited of data.participants.filter(
+      (p) => p.callId === call.id && p.status === 'INVITED',
+    )) {
+      invited.status = 'LEFT';
+      invited.leftAt = call.endedAt;
+    }
   }
 
   return { call };

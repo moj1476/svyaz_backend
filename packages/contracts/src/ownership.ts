@@ -13,6 +13,7 @@ export const mutationOwners = {
   deactivateMember: 'workspace',
   updateWorkspacePolicy: 'workspace',
   createConversation: 'messaging',
+  updateConversation: 'messaging',
   addConversationMember: 'messaging',
   archiveConversation: 'messaging',
   sendMessage: 'messaging',

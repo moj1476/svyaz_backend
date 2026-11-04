@@ -112,6 +112,12 @@ export const inputObjects: Record<string, Record<string, FieldSchema>> = {
     threadRootId: { type: 'ID' },
     fileIds: { type: '[ID!]!', default: [] },
   },
+  UpdateConversationInput: {
+    conversationId: { type: 'ID!' },
+    title: { type: 'String!' },
+    expectedVersion: { type: 'Long!' },
+    idempotencyKey: { type: 'String!' },
+  },
   EditMessageInput: {
     messageId: { type: 'ID!' },
     body: { type: 'String!' },
@@ -213,6 +219,12 @@ export const commandSchemas: Record<string, Record<string, FieldSchema>> = {
     title: { type: 'String' },
     visibility: { type: 'ConversationVisibility!' },
     memberIds: { type: '[ID!]!' },
+    idempotencyKey: { type: 'String!' },
+  },
+  updateConversation: {
+    conversationId: { type: 'ID!' },
+    title: { type: 'String!' },
+    expectedVersion: { type: 'Long!' },
     idempotencyKey: { type: 'String!' },
   },
   addConversationMember: { conversationId: { type: 'ID!' }, userId: { type: 'ID!' } },

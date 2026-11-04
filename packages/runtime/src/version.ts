@@ -15,6 +15,7 @@ export function version(row: { version: string }, expected: unknown) {
     throw new DomainError(
       'STALE_VERSION',
       'Объект уже изменён; перечитайте актуальную версию',
+      'expectedVersion',
     );
 
   if (BigInt(row.version) === 9223372036854775807n)

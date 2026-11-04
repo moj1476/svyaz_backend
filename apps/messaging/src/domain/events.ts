@@ -1,6 +1,16 @@
 import { event, type CommandEvents } from '../../../../packages/contracts/src/events';
 
 export const events: CommandEvents<'messaging'> = {
+  updateConversation: (_input, output, context) => [
+    event(
+      'conversation.updated.v1',
+      'conversation',
+      output.conversation.id,
+      output.conversation.workspaceId,
+      context,
+      { version: output.conversation.version },
+    ),
+  ],
   createConversation: (_input, output, context) => [
     event(
       'conversation.created.v1',

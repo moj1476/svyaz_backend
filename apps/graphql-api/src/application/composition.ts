@@ -54,7 +54,7 @@ export class Composition {
             {
               code: error.code,
               message: error.message,
-              field: null,
+              field: error.field,
               retryable: error.code === 'UNAVAILABLE',
             },
           ],

@@ -29,8 +29,12 @@ export async function deleteFile(
   if (data.attachments.some((a) => a.fileId === file.id))
     throw new DomainError(
       'CONFLICT',
-      'Файл используется во вложении; требуется отдельный lifecycle удаления',
+      'Файл используется во вложении сообщения',
+      'fileId',
     );
+
+  if (await domain.access.recordingUsesFile(context, file.id))
+    throw new DomainError('CONFLICT', 'Файл используется в записи звонка', 'fileId');
 
   file.status = 'DELETED';
 

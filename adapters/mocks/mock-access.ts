@@ -129,6 +129,10 @@ export class MockAccessClient implements AccessClient {
       .map((r) => r.fileId!);
   }
 
+  async recordingUsesFile(_c: RequestContext, fileId: string) {
+    return labData.calls.recordings.some((recording) => recording.fileId === fileId);
+  }
+
   async searchDocument(c: RequestContext, d: SearchDocument) {
     if (d.sourceType === 'MESSAGE')
       return (

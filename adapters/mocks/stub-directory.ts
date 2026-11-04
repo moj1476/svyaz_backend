@@ -92,6 +92,18 @@ export class StubDirectory implements AccessClient {
       .map((r) => r.fileId!);
   }
 
+  async recordingUsesFile(c: RequestContext, fileId: string) {
+    if ((c as RequestContext & { failed?: ServiceName }).failed === 'calls')
+      throw new DomainError('UNAVAILABLE', 'Сервис звонков недоступен');
+
+    const client = this.endpoints().calls;
+
+    if (!client.recordingUsesFile)
+      throw new DomainError('UNAVAILABLE', 'Проверка записей звонков недоступна');
+
+    return client.recordingUsesFile(fileId);
+  }
+
   async searchDocument(c: RequestContext, d: SearchDocument) {
     if (d.sourceType === 'MESSAGE')
       return (await this.data('messaging', c)).messages.some(

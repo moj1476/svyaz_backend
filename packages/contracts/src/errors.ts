@@ -12,6 +12,7 @@ export class DomainError extends Error {
   constructor(
     public readonly code: ErrorCode,
     message: string,
+    public readonly field: string | null = null,
   ) {
     super(message);
   }

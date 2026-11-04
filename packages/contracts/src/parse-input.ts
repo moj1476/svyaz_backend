@@ -11,7 +11,7 @@ import type { QueryInput, QueryName } from './queries';
 import { dateTime, record } from './validation';
 
 function invalid(field: string, message: string): never {
-  throw new DomainError('VALIDATION', `${field}: ${message}`);
+  throw new DomainError('VALIDATION', `${field}: ${message}`, field);
 }
 
 function value(type: string, input: unknown, field: string): unknown {

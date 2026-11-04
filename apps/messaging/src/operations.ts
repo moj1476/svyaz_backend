@@ -20,6 +20,7 @@ import { messages } from './application/messages/query';
 import { sendMessage } from './application/send-message/handler';
 import { setReaction } from './application/set-reaction/handler';
 import { thread } from './application/thread/query';
+import { updateConversation } from './application/update-conversation/handler';
 import { MessagingPolicy } from './application/policies/messaging.policy';
 
 export class BusinessService extends ServiceBase<'messaging'> {
@@ -36,6 +37,8 @@ export class BusinessService extends ServiceBase<'messaging'> {
       {
         createConversation: (input, context, data) =>
           createConversation(policy, input, context, data),
+        updateConversation: (input, context, data) =>
+          updateConversation(policy, input, context, data),
         sendMessage: (input, context, data) => sendMessage(policy, input, context, data),
         editMessage: (input, context, data) => editMessage(policy, input, context, data),
         deleteMessage: (input, context, data) =>

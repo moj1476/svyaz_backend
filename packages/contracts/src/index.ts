@@ -107,6 +107,7 @@ export interface ServiceClient<K extends ServiceName> {
     context: RequestContext,
   ): Promise<import('./statistics').ServiceStatistics<K>>;
   userExists?(userId: string): Promise<boolean>;
+  recordingUsesFile?(fileId: string): Promise<boolean>;
 }
 
 export interface ReadRepository<T> {

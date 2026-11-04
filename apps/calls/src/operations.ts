@@ -39,6 +39,13 @@ export class BusinessService extends ServiceBase<'calls'> {
     return this.policy.requireWorkspace(context, workspaceId, write);
   }
 
+  async recordingUsesFile(fileId: string) {
+    const id = identifier(fileId);
+    const data = await this.store.load({ recordingFileIds: [id] });
+
+    return data.recordings.some((recording) => recording.fileId === id);
+  }
+
   async statistics(workspaceId: string, context: RequestContext) {
     await this.requireWorkspace(context, identifier(workspaceId));
 

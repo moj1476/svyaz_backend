@@ -14,7 +14,7 @@ import { resolvers } from './presentation/resolvers';
 import { queryLimits } from './presentation/query-limits';
 import { requestLogging } from './presentation/request-logging';
 
-const lab4 = process.argv.includes('--lab4');
+const businessApi = !process.argv.includes('--read-only');
 
 @Module({
   providers: [Composition, { provide: CLIENTS, useFactory: createMockClients }],
@@ -33,11 +33,11 @@ class CompositionModule {}
         typeDefs: readFileSync(
           resolve(
             backendRoot(),
-            `contracts/graphql/${lab4 ? 'lab4' : 'svyaz-read'}.graphql`,
+            `contracts/graphql/${businessApi ? 'lab4' : 'svyaz-read'}.graphql`,
           ),
           'utf8',
         ),
-        resolvers: resolvers(composition, lab4),
+        resolvers: resolvers(composition, businessApi),
         formatError,
         validationRules: [queryLimits()],
         plugins: [requestLogging()],

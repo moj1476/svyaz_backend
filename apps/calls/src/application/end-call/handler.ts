@@ -36,7 +36,7 @@ export async function endCall(
   call.endedAt = new Date().toISOString();
 
   for (const p of data.participants.filter(
-    (p) => p.callId === call.id && p.status === 'JOINED',
+    (p) => p.callId === call.id && ['JOINED', 'INVITED'].includes(p.status),
   )) {
     p.status = 'LEFT';
     p.leftAt = call.endedAt;

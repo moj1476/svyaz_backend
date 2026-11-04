@@ -5,6 +5,16 @@ export function createFilesData(): DataMap['files'] {
   const data: DataMap['files'] = {
     files: [
       {
+        id: id(202),
+        workspaceId: id(10),
+        ownerId: id(1),
+        name: 'Черновик.txt',
+        mimeType: 'text/plain',
+        sizeBytes: '24',
+        status: 'READY' as const,
+        objectKey: 'lab/draft.txt',
+      },
+      {
         id: id(200),
         workspaceId: id(10),
         ownerId: id(1),

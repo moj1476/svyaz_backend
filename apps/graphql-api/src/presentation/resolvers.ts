@@ -10,7 +10,7 @@ import { callsFields } from './resolvers/calls';
 import { scalars } from './scalars';
 import { expose } from './errors';
 
-export function resolvers(composition: Composition, lab4: boolean) {
+export function resolvers(composition: Composition, businessApi: boolean) {
   const Query: Record<string, Resolver> = {};
 
   for (const name of [
@@ -33,7 +33,7 @@ export function resolvers(composition: Composition, lab4: boolean) {
     'search',
     'auditEvents',
     'adminDashboard',
-    ...(lab4 ? ['conversationStats'] : []),
+    ...(businessApi ? ['conversationStats'] : []),
   ])
     Query[name] = (_p, a, c) => expose(() => composition.query(name, a, c), c);
 
@@ -47,7 +47,7 @@ export function resolvers(composition: Composition, lab4: boolean) {
   for (const name of Object.keys(mutationOwners))
     Mutation[name] = (_p, a, c) => expose(() => composition.mutate(name, a, c), c);
 
-  if (lab4) result.Mutation = Mutation;
+  if (businessApi) result.Mutation = Mutation;
 
   const fields = {
     ...workspaceFields(composition.data),

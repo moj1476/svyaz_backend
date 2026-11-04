@@ -82,6 +82,10 @@ export interface CommandDefinitions {
     input: Input.CreateConversationInput;
     output: { conversation: Conversation };
   };
+  updateConversation: {
+    input: Input.UpdateConversationInput;
+    output: { conversation: Conversation };
+  };
   addConversationMember: {
     input: { readonly conversationId: string; readonly userId: string };
     output: { conversation: Conversation };

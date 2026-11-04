@@ -42,6 +42,8 @@ export async function addConversationMember(
   );
 
   if (member) {
+    if (member.status === 'ACTIVE') return { conversation };
+
     member.status = 'ACTIVE';
     member.joinedSeq = '1';
   } else

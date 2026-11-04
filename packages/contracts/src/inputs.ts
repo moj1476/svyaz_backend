@@ -124,6 +124,12 @@ export interface SendMessageInput {
   readonly threadRootId?: string | null;
   readonly fileIds?: Array<string>;
 }
+export interface UpdateConversationInput {
+  readonly conversationId: string;
+  readonly title: string;
+  readonly expectedVersion: string;
+  readonly idempotencyKey: string;
+}
 export interface EditMessageInput {
   readonly messageId: string;
   readonly body: string;

@@ -46,6 +46,11 @@ export class Repository extends TransactionalRepository<
     client: Prisma.TransactionClient,
     scope: ReadScope,
   ): Promise<CallsData> {
+    if (scope.recordingFileIds)
+      return this.state(client, {
+        recordings: { fileId: { in: [...scope.recordingFileIds] } },
+      });
+
     const calls = { conversationId: { in: [...(scope.conversationIds ?? [])] } };
 
     return this.state(client, { calls, participants: { calls }, recordings: { calls } });

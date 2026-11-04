@@ -12,7 +12,7 @@ export class FilesPolicy {
   async authorize(_op: string, input: Record<string, unknown>, context: RequestContext) {
     const f = (await this.store.load()).files.find((f) => f.id === input.fileId);
 
-    if (!f) throw new DomainError('NOT_FOUND', 'Файл не найдено');
+    if (!f) throw new DomainError('NOT_FOUND', 'Файл не найден');
 
     await this.requireWorkspace(context, f.workspaceId, true);
 
