@@ -1,0 +1,33 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../../../generated/audit"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model AuditEvent {
+  id          String   @id @db.Uuid
+  workspaceId String   @map("workspace_id") @db.Uuid
+  actorId     String?  @map("actor_id") @db.Uuid
+  action      String
+  targetType  String   @map("target_type")
+  targetId    String?  @map("target_id") @db.Uuid
+  outcome     String
+  occurredAt  DateTime @map("occurred_at") @db.Timestamptz(6)
+  metadata    Json
+
+  @@index([workspaceId, occurredAt, id], map: "audit_page_workspace")
+  @@map("audit_events")
+}
+
+model BusinessCommand {
+  commandKey  String   @id @map("command_key")
+  fingerprint String
+  result      Json
+  completedAt DateTime @default(now()) @map("completed_at") @db.Timestamptz(6)
+
+  @@map("business_commands")
+}

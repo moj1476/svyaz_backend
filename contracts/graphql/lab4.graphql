@@ -1,0 +1,686 @@
+scalar DateTime
+
+scalar JSON
+
+"Signed int64 serialized as a decimal string without loss of precision."
+scalar Long
+
+enum UserStatus {
+  PENDING
+  ACTIVE
+  DISABLED
+  DELETED
+}
+
+enum MemberStatus {
+  INVITED
+  ACTIVE
+  SUSPENDED
+  REMOVED
+}
+
+enum ConversationType {
+  DIRECT
+  GROUP
+  CHANNEL
+}
+
+enum ConversationVisibility {
+  PUBLIC
+  PRIVATE
+}
+
+enum MessageStatus {
+  SENT
+  EDITED
+  DELETED
+}
+
+enum FileStatus {
+  PENDING
+  READY
+  QUARANTINED
+  DELETED
+}
+
+enum CallMode {
+  AUDIO
+  VIDEO
+}
+
+enum CallStatus {
+  RINGING
+  ACTIVE
+  ENDED
+  FAILED
+}
+
+interface Node {
+  id: ID!
+}
+
+type PageInfo {
+  endCursor: String
+  hasNextPage: Boolean!
+}
+
+type User implements Node {
+  id: ID!
+  login: String!
+  displayName: String!
+  avatarFileId: ID
+  status: UserStatus!
+  version: Long!
+}
+
+type Device {
+  id: ID!
+  platform: String!
+  name: String!
+  trusted: Boolean!
+  lastSeenAt: DateTime
+}
+
+type Session implements Node {
+  id: ID!
+  device: Device
+  status: String!
+  createdAt: DateTime!
+  expiresAt: DateTime!
+  lastSeenAt: DateTime!
+}
+
+type Workspace implements Node {
+  id: ID!
+  name: String!
+  slug: String!
+  status: String!
+  version: Long!
+  myMembership: Membership!
+  policy: WorkspacePolicy!
+}
+
+type Membership implements Node {
+  id: ID!
+  user: User!
+  role: Role!
+  status: MemberStatus!
+  teams: [Team!]!
+  joinedAt: DateTime
+  version: Long!
+}
+
+type Role implements Node {
+  id: ID!
+  code: String!
+  name: String!
+  systemRole: Boolean!
+  permissions: [Permission!]!
+  version: Long!
+}
+
+type Permission {
+  id: ID!
+  code: String!
+  scope: String!
+}
+
+type Team {
+  id: ID!
+  workspaceId: ID!
+  name: String!
+  description: String
+  status: String!
+}
+
+type WorkspacePolicy {
+  workspaceId: ID!
+  mfaRequired: Boolean!
+  guestPolicy: JSON!
+  retentionDays: Int!
+  fileRules: JSON!
+  channelRules: JSON!
+  version: Long!
+}
+
+type Conversation implements Node {
+  id: ID!
+  workspaceId: ID!
+  type: ConversationType!
+  title: String
+  visibility: ConversationVisibility!
+  status: String!
+  members(first: Int = 50, after: String): MembershipConnection!
+  unreadCount: Int!
+  version: Long!
+}
+
+type Message implements Node {
+  id: ID!
+  conversationId: ID!
+  sender: User!
+  sequence: Long!
+  body: String
+  status: MessageStatus!
+  threadRootId: ID
+  attachments: [Attachment!]!
+  reactions: [ReactionSummary!]!
+  sentAt: DateTime!
+  editedAt: DateTime
+  version: Long!
+}
+
+type Attachment {
+  id: ID!
+  messageId: ID!
+  file: File!
+}
+
+type ReactionSummary {
+  emoji: String!
+  count: Int!
+  reactedByMe: Boolean!
+}
+
+type File implements Node {
+  id: ID!
+  name: String!
+  mimeType: String!
+  sizeBytes: Long!
+  status: FileStatus!
+  downloadUrl: String
+}
+
+type Notification implements Node {
+  id: ID!
+  workspaceId: ID!
+  type: String!
+  targetType: String!
+  targetId: ID!
+  preview: JSON!
+  createdAt: DateTime!
+  readAt: DateTime
+}
+
+type Presence {
+  userId: ID!
+  status: String!
+  lastHeartbeat: DateTime!
+}
+
+type Call implements Node {
+  id: ID!
+  conversationId: ID!
+  mode: CallMode!
+  status: CallStatus!
+  participants: [CallParticipant!]!
+  startedAt: DateTime
+  endedAt: DateTime
+  recordings: [Recording!]!
+}
+
+type CallParticipant {
+  user: User!
+  status: String!
+  joinedAt: DateTime
+  leftAt: DateTime
+}
+
+type Recording {
+  id: ID!
+  callId: ID!
+  fileId: ID
+  status: String!
+}
+
+type AuditEvent implements Node {
+  id: ID!
+  actorId: ID
+  action: String!
+  targetType: String!
+  targetId: ID
+  outcome: String!
+  occurredAt: DateTime!
+  metadata: JSON!
+}
+
+type SearchResult {
+  sourceId: ID!
+  sourceType: String!
+  workspaceId: ID!
+  title: String!
+  snippet: String
+  sourceVersion: Long!
+}
+
+type AdminDashboard {
+  workspaceId: ID!
+  totalMembers: Int
+  activeMembers: Int
+  pendingInvites: Int
+  channelCount: Int
+  storageUsed: Long
+  storageLimit: Long
+  messagesLast30Days: Long
+  callsLast30Days: Long
+  degradedServices: [String!]!
+}
+
+input SearchInput {
+  workspaceId: ID!
+  text: String!
+  types: [String!]! = ["MESSAGE", "FILE", "USER", "CHANNEL"]
+  conversationIds: [ID!]
+  from: DateTime
+  to: DateTime
+}
+
+input AuditFilterInput {
+  workspaceId: ID!
+  actorId: ID
+  actions: [String!]
+  targetType: String
+  from: DateTime
+  to: DateTime
+}
+
+type SessionEdge {
+  cursor: String!
+  node: Session!
+}
+
+type SessionConnection {
+  edges: [SessionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type MembershipEdge {
+  cursor: String!
+  node: Membership!
+}
+
+type MembershipConnection {
+  edges: [MembershipEdge!]!
+  pageInfo: PageInfo!
+}
+
+type ConversationEdge {
+  cursor: String!
+  node: Conversation!
+}
+
+type ConversationConnection {
+  edges: [ConversationEdge!]!
+  pageInfo: PageInfo!
+}
+
+type MessageEdge {
+  cursor: String!
+  node: Message!
+}
+
+type MessageConnection {
+  edges: [MessageEdge!]!
+  pageInfo: PageInfo!
+}
+
+type NotificationEdge {
+  cursor: String!
+  node: Notification!
+}
+
+type NotificationConnection {
+  edges: [NotificationEdge!]!
+  pageInfo: PageInfo!
+}
+
+type SearchEdge {
+  cursor: String!
+  node: SearchResult!
+}
+
+type SearchConnection {
+  edges: [SearchEdge!]!
+  pageInfo: PageInfo!
+}
+
+type AuditEventEdge {
+  cursor: String!
+  node: AuditEvent!
+}
+
+type AuditEventConnection {
+  edges: [AuditEventEdge!]!
+  pageInfo: PageInfo!
+}
+
+type Query {
+  me: User!
+  sessions(first: Int = 20, after: String): SessionConnection!
+  workspaces: [Workspace!]!
+  workspace(id: ID!): Workspace
+  members(workspaceId: ID!, first: Int = 50, after: String, filter: MembershipFilter, sort: MemberSort): MembershipConnection!
+  roles(workspaceId: ID!): [Role!]!
+  teams(workspaceId: ID!): [Team!]!
+  conversations(workspaceId: ID!, first: Int = 50, after: String, filter: ConversationFilter, sort: ConversationSort): ConversationConnection!
+  conversation(id: ID!): Conversation
+  messages(conversationId: ID!, first: Int = 50, after: String, filter: MessageFilter, sort: MessageSort): MessageConnection!
+  thread(rootMessageId: ID!, first: Int = 50, after: String, filter: MessageFilter, sort: MessageSort): MessageConnection!
+  file(id: ID!): File
+  notifications(workspaceId: ID, unreadOnly: Boolean = false, first: Int = 50, after: String, filter: NotificationFilter, sort: EventSort): NotificationConnection!
+  presence(workspaceId: ID!, userIds: [ID!]!): [Presence!]!
+  call(id: ID!): Call
+  activeCall(conversationId: ID!): Call
+  search(input: SearchInput!, first: Int = 50, after: String, sort: SearchSort): SearchConnection!
+  auditEvents(filter: AuditFilterInput!, first: Int = 50, after: String, sort: EventSort): AuditEventConnection!
+  adminDashboard(workspaceId: ID!): AdminDashboard!
+  conversationStats(conversationId: ID!): ConversationStats!
+}
+
+enum SortDirection {
+  ASC
+  DESC
+}
+
+enum ConversationStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+enum MessageSortField {
+  SEQUENCE
+  SENT_AT
+  ID
+}
+
+enum ConversationSortField {
+  ID
+  TITLE
+  TYPE
+}
+
+enum MemberSortField {
+  ID
+  JOINED_AT
+}
+
+enum EventSortField {
+  ID
+  CREATED_AT
+}
+
+enum SearchSortField {
+  ID
+  TITLE
+}
+
+input MessageSort {
+  field: MessageSortField = SEQUENCE
+  direction: SortDirection = ASC
+}
+
+input ConversationSort {
+  field: ConversationSortField = ID
+  direction: SortDirection = ASC
+}
+
+input MemberSort {
+  field: MemberSortField = ID
+  direction: SortDirection = ASC
+}
+
+input EventSort {
+  field: EventSortField = CREATED_AT
+  direction: SortDirection = ASC
+}
+
+input SearchSort {
+  field: SearchSortField = ID
+  direction: SortDirection = ASC
+}
+
+input MessageFilter {
+  text: String
+  senderId: ID
+  status: MessageStatus
+  from: DateTime
+  to: DateTime
+}
+
+input ConversationFilter {
+  text: String
+  type: ConversationType
+  visibility: ConversationVisibility
+  status: ConversationStatus
+}
+
+input MembershipFilter {
+  status: MemberStatus
+  roleId: ID
+  userId: ID
+}
+
+input NotificationFilter {
+  type: String
+  from: DateTime
+  to: DateTime
+}
+
+type OperationError {
+  code: String!
+  message: String!
+  field: String
+  retryable: Boolean!
+}
+
+type Invitation {
+  id: ID!
+  workspaceId: ID!
+  userId: ID!
+  roleId: ID!
+  status: String!
+  expiresAt: DateTime!
+  createdAt: DateTime!
+}
+
+type InvitationPayload {
+  invitation: Invitation
+  errors: [OperationError!]!
+  idempotencyKey: String
+}
+
+input InviteMemberInput {
+  workspaceId: ID!
+  userId: ID!
+  roleId: ID!
+  expiresAt: DateTime!
+  idempotencyKey: String!
+}
+
+input UpdateProfileInput {
+  displayName: String
+  avatarFileId: ID
+  expectedVersion: Long!
+  idempotencyKey: String!
+}
+
+input CreateWorkspaceInput {
+  name: String!
+  slug: String!
+  idempotencyKey: String!
+}
+
+input ChangeMemberRoleInput {
+  workspaceId: ID!
+  membershipId: ID!
+  roleId: ID!
+  expectedVersion: Long!
+  actionId: String!
+}
+
+input UpdateWorkspacePolicyInput {
+  workspaceId: ID!
+  mfaRequired: Boolean
+  retentionDays: Int
+  guestPolicy: JSON
+  fileRules: JSON
+  channelRules: JSON
+  expectedVersion: Long!
+  actionId: String!
+}
+
+input CreateConversationInput {
+  workspaceId: ID!
+  type: ConversationType!
+  title: String
+  visibility: ConversationVisibility!
+  memberIds: [ID!]!
+  idempotencyKey: String!
+}
+
+input SendMessageInput {
+  conversationId: ID!
+  clientMessageId: ID!
+  body: String!
+  threadRootId: ID
+  fileIds: [ID!]! = []
+}
+
+input EditMessageInput {
+  messageId: ID!
+  body: String!
+  expectedVersion: Long!
+  idempotencyKey: String!
+}
+
+input MarkReadInput {
+  conversationId: ID!
+  sequence: Long!
+}
+
+input SetReactionInput {
+  messageId: ID!
+  emoji: String!
+  active: Boolean!
+}
+
+input StartCallInput {
+  conversationId: ID!
+  mode: CallMode!
+  inviteeIds: [ID!]! = []
+  idempotencyKey: String!
+}
+
+type UserPayload {
+  user: User
+  errors: [OperationError!]!
+  idempotencyKey: String
+}
+
+type SessionPayload {
+  session: Session
+  errors: [OperationError!]!
+  idempotencyKey: String
+}
+
+type WorkspacePayload {
+  workspace: Workspace
+  errors: [OperationError!]!
+  idempotencyKey: String
+}
+
+type MembershipPayload {
+  membership: Membership
+  errors: [OperationError!]!
+  idempotencyKey: String
+}
+
+type PolicyPayload {
+  policy: WorkspacePolicy
+  errors: [OperationError!]!
+  idempotencyKey: String
+}
+
+type TeamPayload {
+  team: Team
+  errors: [OperationError!]!
+  idempotencyKey: String
+}
+
+type ConversationPayload {
+  conversation: Conversation
+  errors: [OperationError!]!
+  idempotencyKey: String
+}
+
+type MessagePayload {
+  message: Message
+  errors: [OperationError!]!
+  idempotencyKey: String
+}
+
+type NotificationPayload {
+  notification: Notification
+  errors: [OperationError!]!
+  idempotencyKey: String
+}
+
+type CallPayload {
+  call: Call
+  errors: [OperationError!]!
+  idempotencyKey: String
+}
+
+type FilePayload {
+  file: File
+  errors: [OperationError!]!
+  idempotencyKey: String
+}
+
+type ReadState {
+  conversationId: ID!
+  sequence: Long!
+}
+
+type ReadStatePayload {
+  readState: ReadState
+  errors: [OperationError!]!
+  idempotencyKey: String
+}
+
+type ConversationStats {
+  conversationId: ID!
+  messageCount: Int!
+  replyCount: Int!
+  deletedCount: Int!
+  participantCount: Int!
+  unreadCount: Int!
+  lastSequence: Long!
+}
+
+type Mutation {
+  inviteMember(input: InviteMemberInput!): InvitationPayload!
+  acceptInvitation(invitationId: ID!, idempotencyKey: String!): MembershipPayload!
+  updateProfile(input: UpdateProfileInput!): UserPayload!
+  revokeSession(sessionId: ID!, idempotencyKey: String!): SessionPayload!
+  createWorkspace(input: CreateWorkspaceInput!): WorkspacePayload!
+  createTeam(workspaceId: ID!, name: String!, description: String, idempotencyKey: String!): TeamPayload!
+  assignTeamMember(workspaceId: ID!, teamId: ID!, membershipId: ID!, active: Boolean!): TeamPayload!
+  changeMemberRole(input: ChangeMemberRoleInput!): MembershipPayload!
+  deactivateMember(workspaceId: ID!, membershipId: ID!, expectedVersion: Long!, actionId: String!): MembershipPayload!
+  updateWorkspacePolicy(input: UpdateWorkspacePolicyInput!): PolicyPayload!
+  createConversation(input: CreateConversationInput!): ConversationPayload!
+  addConversationMember(conversationId: ID!, userId: ID!): ConversationPayload!
+  archiveConversation(conversationId: ID!, expectedVersion: Long!, actionId: String!): ConversationPayload!
+  sendMessage(input: SendMessageInput!): MessagePayload!
+  editMessage(input: EditMessageInput!): MessagePayload!
+  deleteMessage(messageId: ID!, expectedVersion: Long!, idempotencyKey: String!): MessagePayload!
+  markRead(input: MarkReadInput!): ReadStatePayload!
+  setReaction(input: SetReactionInput!): MessagePayload!
+  markNotificationRead(id: ID!, read: Boolean!): NotificationPayload!
+  startCall(input: StartCallInput!): CallPayload!
+  joinCall(callId: ID!, idempotencyKey: String!): CallPayload!
+  leaveCall(callId: ID!, idempotencyKey: String!): CallPayload!
+  endCall(callId: ID!, idempotencyKey: String!): CallPayload!
+  deleteFile(fileId: ID!, reason: String!, idempotencyKey: String!): FilePayload!
+}

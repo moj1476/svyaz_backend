@@ -1,0 +1,45 @@
+name: svyaz
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_ADMIN_PASSWORD:?required}
+      SERVICE_DB_PASSWORD: ${SERVICE_DB_PASSWORD:?required}
+    ports: ['127.0.0.1:${POSTGRES_PORT:-55432}:5432']
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U postgres']
+      interval: 5s
+      timeout: 5s
+      retries: 30
+  redis:
+    image: redis:7-alpine
+    ports: ['127.0.0.1:${REDIS_PORT:-56379}:6379']
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+  opensearch:
+    image: opensearchproject/opensearch:2.19.1
+    environment:
+      discovery.type: single-node
+      DISABLE_SECURITY_PLUGIN: 'true'
+      DISABLE_INSTALL_DEMO_CONFIG: 'true'
+      OPENSEARCH_JAVA_OPTS: -Xms512m -Xmx512m
+    ports: ['127.0.0.1:${OPENSEARCH_PORT:-59200}:9200']
+    volumes: ['search-data:/usr/share/opensearch/data']
+    healthcheck:
+      test:
+        [
+          CMD-SHELL,
+          "curl -fsS 'http://localhost:9200/_cluster/health?wait_for_status=yellow' > /dev/null",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 40
+volumes:
+  postgres-data:
+  search-data:

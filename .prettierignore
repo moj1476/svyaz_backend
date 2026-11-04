@@ -1,0 +1,7 @@
+node_modules/
+dist/
+pnpm-lock.yaml
+.env
+contracts/graphql/lab2-reference.graphql
+contracts/graphql/lab4.graphql
+generated/

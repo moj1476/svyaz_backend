@@ -1,0 +1,29 @@
+import type { ServiceName } from './index';
+import type { CommandName } from './command-map';
+
+export const mutationOwners = {
+  updateProfile: 'identity',
+  revokeSession: 'identity',
+  createWorkspace: 'workspace',
+  inviteMember: 'workspace',
+  acceptInvitation: 'workspace',
+  createTeam: 'workspace',
+  assignTeamMember: 'workspace',
+  changeMemberRole: 'workspace',
+  deactivateMember: 'workspace',
+  updateWorkspacePolicy: 'workspace',
+  createConversation: 'messaging',
+  addConversationMember: 'messaging',
+  archiveConversation: 'messaging',
+  sendMessage: 'messaging',
+  editMessage: 'messaging',
+  deleteMessage: 'messaging',
+  markRead: 'messaging',
+  setReaction: 'messaging',
+  markNotificationRead: 'notifications',
+  startCall: 'calls',
+  joinCall: 'calls',
+  leaveCall: 'calls',
+  endCall: 'calls',
+  deleteFile: 'files',
+} as const satisfies Record<CommandName, ServiceName>;

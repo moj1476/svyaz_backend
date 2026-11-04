@@ -1,0 +1,61 @@
+generator client {
+  provider        = "prisma-client"
+  output          = "../../../generated/files"
+  previewFeatures = ["partialIndexes"]
+  moduleFormat    = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Attachment {
+  id        String @id @db.Uuid
+  messageId String @map("message_id") @db.Uuid
+  fileId    String @map("file_id") @db.Uuid
+  files     File   @relation(fields: [fileId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([messageId, fileId])
+  @@index([messageId, fileId], map: "attachment_message_files")
+  @@map("attachments")
+}
+
+model BusinessCommand {
+  commandKey  String   @id @map("command_key")
+  fingerprint String
+  result      Json
+  completedAt DateTime @default(now()) @map("completed_at") @db.Timestamptz(6)
+
+  @@map("business_commands")
+}
+
+model File {
+  id          String       @id @db.Uuid
+  workspaceId String       @map("workspace_id") @db.Uuid
+  ownerId     String       @map("owner_id") @db.Uuid
+  name        String
+  mimeType    String       @map("mime_type")
+  sizeBytes   BigInt       @map("size_bytes")
+  status      String
+  objectKey   String       @map("object_key")
+  attachments Attachment[]
+
+  @@map("files")
+}
+model OutboxEvent {
+  id            String    @id @db.Uuid
+  eventType     String    @map("event_type")
+  schemaVersion Int       @map("schema_version")
+  aggregateType String    @map("aggregate_type")
+  aggregateId   String    @map("aggregate_id") @db.Uuid
+  workspaceId   String?   @map("workspace_id") @db.Uuid
+  actorId       String    @map("actor_id") @db.Uuid
+  requestId     String    @map("request_id")
+  occurredAt    DateTime  @map("occurred_at") @db.Timestamptz(6)
+  payload       Json
+  publishedAt   DateTime? @map("published_at") @db.Timestamptz(6)
+  position      BigInt    @unique(map: "outbox_position") @default(autoincrement())
+
+  @@index([position], map: "outbox_pending", where: raw("(published_at IS NULL)"))
+  @@map("outbox_events")
+}

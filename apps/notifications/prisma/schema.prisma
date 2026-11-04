@@ -1,0 +1,54 @@
+generator client {
+  provider        = "prisma-client"
+  output          = "../../../generated/notifications"
+  previewFeatures = ["partialIndexes"]
+  moduleFormat    = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model BusinessCommand {
+  commandKey  String   @id @map("command_key")
+  fingerprint String
+  result      Json
+  completedAt DateTime @default(now()) @map("completed_at") @db.Timestamptz(6)
+
+  @@map("business_commands")
+}
+
+model Notification {
+  id            String    @id @db.Uuid
+  workspaceId   String    @map("workspace_id") @db.Uuid
+  recipientId   String    @map("recipient_id") @db.Uuid
+  type          String
+  targetType    String    @map("target_type")
+  targetId      String    @map("target_id") @db.Uuid
+  sourceEventId String    @map("source_event_id") @db.Uuid
+  preview       Json
+  createdAt     DateTime  @map("created_at") @db.Timestamptz(6)
+  readAt        DateTime? @map("read_at") @db.Timestamptz(6)
+
+  @@unique([recipientId, sourceEventId, type])
+  @@index([recipientId, workspaceId, createdAt, id], map: "notification_inbox")
+  @@index([recipientId, createdAt, id], map: "notification_page_recipient")
+  @@map("notifications")
+}
+model OutboxEvent {
+  id            String    @id @db.Uuid
+  eventType     String    @map("event_type")
+  schemaVersion Int       @map("schema_version")
+  aggregateType String    @map("aggregate_type")
+  aggregateId   String    @map("aggregate_id") @db.Uuid
+  workspaceId   String?   @map("workspace_id") @db.Uuid
+  actorId       String    @map("actor_id") @db.Uuid
+  requestId     String    @map("request_id")
+  occurredAt    DateTime  @map("occurred_at") @db.Timestamptz(6)
+  payload       Json
+  publishedAt   DateTime? @map("published_at") @db.Timestamptz(6)
+  position      BigInt    @unique(map: "outbox_position") @default(autoincrement())
+
+  @@index([position], map: "outbox_pending", where: raw("(published_at IS NULL)"))
+  @@map("outbox_events")
+}

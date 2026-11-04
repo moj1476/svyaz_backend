@@ -1,0 +1,72 @@
+generator client {
+  provider        = "prisma-client"
+  output          = "../../../generated/identity"
+  previewFeatures = ["partialIndexes"]
+  moduleFormat    = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model BusinessCommand {
+  commandKey  String   @id @map("command_key")
+  fingerprint String
+  result      Json
+  completedAt DateTime @default(now()) @map("completed_at") @db.Timestamptz(6)
+
+  @@map("business_commands")
+}
+
+model Device {
+  id         String    @id @db.Uuid
+  platform   String
+  name       String
+  trusted    Boolean
+  lastSeenAt DateTime  @map("last_seen_at") @db.Timestamptz(6)
+  sessions   Session[]
+
+  @@map("devices")
+}
+model OutboxEvent {
+  id            String    @id @db.Uuid
+  eventType     String    @map("event_type")
+  schemaVersion Int       @map("schema_version")
+  aggregateType String    @map("aggregate_type")
+  aggregateId   String    @map("aggregate_id") @db.Uuid
+  workspaceId   String?   @map("workspace_id") @db.Uuid
+  actorId       String    @map("actor_id") @db.Uuid
+  requestId     String    @map("request_id")
+  occurredAt    DateTime  @map("occurred_at") @db.Timestamptz(6)
+  payload       Json
+  publishedAt   DateTime? @map("published_at") @db.Timestamptz(6)
+  position      BigInt    @unique(map: "outbox_position") @default(autoincrement())
+
+  @@index([position], map: "outbox_pending", where: raw("(published_at IS NULL)"))
+  @@map("outbox_events")
+}
+
+model Session {
+  id         String   @id @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  deviceId   String?  @map("device_id") @db.Uuid
+  status     String
+  createdAt  DateTime @map("created_at") @db.Timestamptz(6)
+  expiresAt  DateTime @map("expires_at") @db.Timestamptz(6)
+  lastSeenAt DateTime @map("last_seen_at") @db.Timestamptz(6)
+  devices    Device?  @relation(fields: [deviceId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users      User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("sessions")
+}
+model User {
+  id           String    @id @db.Uuid
+  login        String    @unique
+  displayName  String    @map("display_name")
+  status       String
+  avatarFileId String?   @map("avatar_file_id") @db.Uuid
+  version      BigInt    @default(1)
+  sessions     Session[]
+
+  @@map("users")
+}

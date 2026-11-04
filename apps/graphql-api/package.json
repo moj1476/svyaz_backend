@@ -1,0 +1,9 @@
+{
+  "name": "@svyaz/graphql-api",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "build": "pnpm --dir ../.. prisma:generate && tsc -p tsconfig.json",
+    "start": "node --env-file=../../.env ../../dist/apps/graphql-api/src/main.js"
+  }
+}

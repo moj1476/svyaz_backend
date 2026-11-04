@@ -1,0 +1,75 @@
+generator client {
+  provider        = "prisma-client"
+  output          = "../../../generated/calls"
+  previewFeatures = ["partialIndexes"]
+  moduleFormat    = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model BusinessCommand {
+  commandKey  String   @id @map("command_key")
+  fingerprint String
+  result      Json
+  completedAt DateTime @default(now()) @map("completed_at") @db.Timestamptz(6)
+
+  @@map("business_commands")
+}
+
+model CallParticipant {
+  id       String    @id @db.Uuid
+  callId   String    @map("call_id") @db.Uuid
+  userId   String    @map("user_id") @db.Uuid
+  status   String
+  joinedAt DateTime? @map("joined_at") @db.Timestamptz(6)
+  leftAt   DateTime? @map("left_at") @db.Timestamptz(6)
+  calls    Call      @relation(fields: [callId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([callId, userId])
+  @@map("call_participants")
+}
+model CallRecording {
+  id         String  @id @db.Uuid
+  callId     String  @map("call_id") @db.Uuid
+  fileId     String? @map("file_id") @db.Uuid
+  egressId   String  @unique @map("egress_id")
+  storageKey String? @map("storage_key")
+  status     String
+  calls      Call    @relation(fields: [callId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("call_recordings")
+}
+
+model Call {
+  id               String            @id @db.Uuid
+  workspaceId      String            @map("workspace_id") @db.Uuid
+  conversationId   String            @unique(map: "one_active_call", where: raw("(status = ANY (ARRAY['RINGING'::text, 'ACTIVE'::text]))")) @map("conversation_id") @db.Uuid
+  mode             String
+  status           String
+  startedAt        DateTime?         @map("started_at") @db.Timestamptz(6)
+  endedAt          DateTime?         @map("ended_at") @db.Timestamptz(6)
+  initiatorId      String?           @map("initiator_id") @db.Uuid
+  callParticipants CallParticipant[]
+  callRecordings   CallRecording[]
+
+  @@map("calls")
+}
+model OutboxEvent {
+  id            String    @id @db.Uuid
+  eventType     String    @map("event_type")
+  schemaVersion Int       @map("schema_version")
+  aggregateType String    @map("aggregate_type")
+  aggregateId   String    @map("aggregate_id") @db.Uuid
+  workspaceId   String?   @map("workspace_id") @db.Uuid
+  actorId       String    @map("actor_id") @db.Uuid
+  requestId     String    @map("request_id")
+  occurredAt    DateTime  @map("occurred_at") @db.Timestamptz(6)
+  payload       Json
+  publishedAt   DateTime? @map("published_at") @db.Timestamptz(6)
+  position      BigInt    @unique(map: "outbox_position") @default(autoincrement())
+
+  @@index([position], map: "outbox_pending", where: raw("(published_at IS NULL)"))
+  @@map("outbox_events")
+}

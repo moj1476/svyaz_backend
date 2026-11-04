@@ -1,0 +1,151 @@
+generator client {
+  provider        = "prisma-client"
+  output          = "../../../generated/workspace"
+  previewFeatures = ["partialIndexes"]
+  moduleFormat    = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model BusinessCommand {
+  commandKey  String   @id @map("command_key")
+  fingerprint String
+  result      Json
+  completedAt DateTime @default(now()) @map("completed_at") @db.Timestamptz(6)
+
+  @@map("business_commands")
+}
+
+model Invitation {
+  id          String    @id @db.Uuid
+  workspaceId String    @map("workspace_id") @db.Uuid
+  userId      String    @map("user_id") @db.Uuid
+  roleId      String    @map("role_id") @db.Uuid
+  status      String
+  expiresAt   DateTime  @map("expires_at") @db.Timestamptz(6)
+  createdAt   DateTime  @map("created_at") @db.Timestamptz(6)
+  roles       Role      @relation(fields: [roleId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  workspaces  Workspace @relation(fields: [workspaceId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([workspaceId, userId], map: "one_pending_invitation", where: raw("(status = 'PENDING'::text)"))
+  @@map("invitations")
+}
+model Membership {
+  id          String       @id @db.Uuid
+  workspaceId String       @map("workspace_id") @db.Uuid
+  userId      String       @map("user_id") @db.Uuid
+  roleId      String       @map("role_id") @db.Uuid
+  status      String
+  joinedAt    DateTime     @map("joined_at") @db.Timestamptz(6)
+  version     BigInt       @default(1)
+  roles       Role         @relation(fields: [roleId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  workspaces  Workspace    @relation(fields: [workspaceId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  teamMembers TeamMember[]
+
+  @@unique([workspaceId, userId])
+  @@index([userId, status, workspaceId], map: "membership_access")
+  @@index([workspaceId, id], map: "membership_page_id")
+  @@index([workspaceId, joinedAt, id], map: "membership_page_joined")
+  @@map("memberships")
+}
+model OutboxEvent {
+  id            String    @id @db.Uuid
+  eventType     String    @map("event_type")
+  schemaVersion Int       @map("schema_version")
+  aggregateType String    @map("aggregate_type")
+  aggregateId   String    @map("aggregate_id") @db.Uuid
+  workspaceId   String?   @map("workspace_id") @db.Uuid
+  actorId       String    @map("actor_id") @db.Uuid
+  requestId     String    @map("request_id")
+  occurredAt    DateTime  @map("occurred_at") @db.Timestamptz(6)
+  payload       Json
+  publishedAt   DateTime? @map("published_at") @db.Timestamptz(6)
+  position      BigInt    @unique(map: "outbox_position") @default(autoincrement())
+
+  @@index([position], map: "outbox_pending", where: raw("(published_at IS NULL)"))
+  @@map("outbox_events")
+}
+
+model Permission {
+  id              String           @id @db.Uuid
+  code            String           @unique
+  scope           String
+  rolePermissions RolePermission[]
+
+  @@map("permissions")
+}
+
+model RolePermission {
+  roleId       String     @map("role_id") @db.Uuid
+  permissionId String     @map("permission_id") @db.Uuid
+  permissions  Permission @relation(fields: [permissionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  roles        Role       @relation(fields: [roleId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
+}
+model Role {
+  id              String           @id @db.Uuid
+  workspaceId     String           @map("workspace_id") @db.Uuid
+  code            String
+  name            String
+  systemRole      Boolean          @map("system_role")
+  version         BigInt           @default(1)
+  invitations     Invitation[]
+  memberships     Membership[]
+  rolePermissions RolePermission[]
+  workspaces      Workspace        @relation(fields: [workspaceId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([workspaceId, code])
+  @@map("roles")
+}
+model SecurityPolicy {
+  workspaceId   String    @id @map("workspace_id") @db.Uuid
+  mfaRequired   Boolean   @map("mfa_required")
+  guestPolicy   Json      @map("guest_policy")
+  retentionDays Int       @map("retention_days")
+  fileRules     Json      @map("file_rules")
+  channelRules  Json      @map("channel_rules")
+  version       BigInt    @default(1)
+  workspaces    Workspace @relation(fields: [workspaceId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("security_policies")
+}
+
+model TeamMember {
+  teamId       String     @map("team_id") @db.Uuid
+  membershipId String     @map("membership_id") @db.Uuid
+  memberships  Membership @relation(fields: [membershipId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  teams        Team       @relation(fields: [teamId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([teamId, membershipId])
+  @@map("team_members")
+}
+
+model Team {
+  id          String       @id @db.Uuid
+  workspaceId String       @map("workspace_id") @db.Uuid
+  name        String
+  description String?
+  status      String
+  teamMembers TeamMember[]
+  workspaces  Workspace    @relation(fields: [workspaceId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("teams")
+}
+model Workspace {
+  id               String          @id @db.Uuid
+  name             String
+  slug             String          @unique
+  status           String
+  version          BigInt          @default(1)
+  invitations      Invitation[]
+  memberships      Membership[]
+  roles            Role[]
+  securityPolicies SecurityPolicy?
+  teams            Team[]
+
+  @@map("workspaces")
+}

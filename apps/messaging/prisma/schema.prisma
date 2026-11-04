@@ -1,0 +1,111 @@
+generator client {
+  provider        = "prisma-client"
+  output          = "../../../generated/messaging"
+  previewFeatures = ["partialIndexes"]
+  moduleFormat    = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model BusinessCommand {
+  commandKey  String   @id @map("command_key")
+  fingerprint String
+  result      Json
+  completedAt DateTime @default(now()) @map("completed_at") @db.Timestamptz(6)
+
+  @@map("business_commands")
+}
+
+model ConversationMember {
+  conversationId String       @map("conversation_id") @db.Uuid
+  userId         String       @map("user_id") @db.Uuid
+  status         String
+  joinedSeq      BigInt       @map("joined_seq")
+  lastReadSeq    BigInt       @map("last_read_seq")
+  conversations  Conversation @relation(fields: [conversationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([conversationId, userId])
+  @@index([userId, status, conversationId], map: "conversation_member_reader")
+  @@map("conversation_members")
+}
+model Conversation {
+  id                  String               @id @db.Uuid
+  workspaceId         String               @map("workspace_id") @db.Uuid
+  type                String
+  title               String?
+  visibility          String
+  status              String
+  version             BigInt               @default(1)
+  createdBy           String?              @map("created_by") @db.Uuid
+  conversationMembers ConversationMember[]
+  messages            Message[]
+
+  @@index([workspaceId, id], map: "conversation_page_workspace")
+  @@map("conversations")
+}
+
+model MessageRevision {
+  id         String   @id @db.Uuid
+  messageId  String   @map("message_id") @db.Uuid
+  revisionNo BigInt   @map("revision_no")
+  body       String?
+  editedAt   DateTime @map("edited_at") @db.Timestamptz(6)
+  messages   Message  @relation(fields: [messageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([messageId, revisionNo])
+  @@map("message_revisions")
+}
+model Message {
+  id               String            @id @db.Uuid
+  conversationId   String            @map("conversation_id") @db.Uuid
+  senderId         String            @map("sender_id") @db.Uuid
+  sequence         BigInt
+  body             String?
+  status           String
+  threadRootId     String?           @map("thread_root_id") @db.Uuid
+  sentAt           DateTime          @map("sent_at") @db.Timestamptz(6)
+  editedAt         DateTime?         @map("edited_at") @db.Timestamptz(6)
+  version          BigInt            @default(1)
+  clientMessageId  String?           @map("client_message_id") @db.Uuid
+  messageRevisions MessageRevision[]
+  conversations    Conversation      @relation(fields: [conversationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  messages         Message?          @relation("messagesTomessages", fields: [threadRootId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  otherMessages    Message[]         @relation("messagesTomessages")
+  reactions        Reaction[]
+
+  @@unique([conversationId, clientMessageId], map: "messages_client_id", where: raw("(client_message_id IS NOT NULL)"))
+  @@unique([conversationId, sequence])
+  @@index([conversationId, sequence], map: "messages_history")
+  @@index([conversationId, sentAt, id], map: "messages_page_sent")
+  @@index([threadRootId, sequence], map: "messages_thread")
+  @@map("messages")
+}
+model OutboxEvent {
+  id            String    @id @db.Uuid
+  eventType     String    @map("event_type")
+  schemaVersion Int       @map("schema_version")
+  aggregateType String    @map("aggregate_type")
+  aggregateId   String    @map("aggregate_id") @db.Uuid
+  workspaceId   String?   @map("workspace_id") @db.Uuid
+  actorId       String    @map("actor_id") @db.Uuid
+  requestId     String    @map("request_id")
+  occurredAt    DateTime  @map("occurred_at") @db.Timestamptz(6)
+  payload       Json
+  publishedAt   DateTime? @map("published_at") @db.Timestamptz(6)
+  position      BigInt    @unique(map: "outbox_position") @default(autoincrement())
+
+  @@index([position], map: "outbox_pending", where: raw("(published_at IS NULL)"))
+  @@map("outbox_events")
+}
+
+model Reaction {
+  messageId String  @map("message_id") @db.Uuid
+  userId    String  @map("user_id") @db.Uuid
+  emoji     String
+  messages  Message @relation(fields: [messageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([messageId, userId, emoji])
+  @@map("reactions")
+}
