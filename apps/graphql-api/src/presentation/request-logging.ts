@@ -1,7 +1,7 @@
 import type { ApolloServerPlugin } from '@apollo/server';
-import type { QueryContext } from '../context/query-context';
+import type { GraphQLContext } from '../context/create-context';
 
-export function requestLogging(): ApolloServerPlugin<QueryContext> {
+export function requestLogging(): ApolloServerPlugin<GraphQLContext> {
   return {
     async requestDidStart() {
       const started = performance.now();

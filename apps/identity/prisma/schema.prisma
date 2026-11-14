@@ -66,6 +66,7 @@ model User {
   status       String
   avatarFileId String?   @map("avatar_file_id") @db.Uuid
   version      BigInt    @default(1)
+  passwordHash String?   @map("password_hash")
   sessions     Session[]
 
   @@map("users")

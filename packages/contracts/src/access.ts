@@ -42,7 +42,9 @@ export function hasPermission(
     (m) => m.userId === userId && m.workspaceId === workspaceId && m.status === 'ACTIVE',
   );
 
-  const role = roles.find((r) => r.id === membership?.roleId);
+  const role = roles.find(
+    (r) => r.id === membership?.roleId && r.workspaceId === workspaceId,
+  );
 
   return permissions.some((p) => p.code === code && role?.permissionIds.includes(p.id));
 }

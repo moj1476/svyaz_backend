@@ -1,0 +1,40 @@
+type WorkspaceMembership {
+  workspaceId: ID!
+  name: String!
+  roleId: ID!
+  roleCode: String!
+  permissions: [String!]!
+}
+
+type Viewer {
+  user: User!
+  memberships: [WorkspaceMembership!]!
+}
+
+type AuthPayload {
+  accessToken: String!
+  expiresAt: String!
+  sessionId: ID!
+  viewer: Viewer!
+}
+
+input LoginInput {
+  login: String!
+  password: String!
+}
+
+input RegisterInput {
+  login: String!
+  displayName: String!
+  password: String!
+}
+
+extend type Query {
+  viewer: Viewer!
+}
+
+type Mutation {
+  login(input: LoginInput!): AuthPayload!
+  register(input: RegisterInput!): AuthPayload!
+  logout: Boolean!
+}

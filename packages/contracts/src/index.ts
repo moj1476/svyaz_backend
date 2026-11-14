@@ -76,6 +76,8 @@ export const sqlServices = services.filter((s) => s !== 'presence' && s !== 'sea
 export interface RequestContext {
   userId: string;
   requestId: string;
+  sessionId?: string;
+  workspaceRoles?: readonly import('./auth').WorkspaceRole[];
 }
 
 export interface DataMap {

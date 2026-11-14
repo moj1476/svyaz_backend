@@ -1,5 +1,5 @@
-import { hasPermission } from '../../../../packages/contracts/src/access';
-import { DomainError, uuid } from '../../../../packages/contracts/src/errors';
+import { hasPermission } from '#contracts/access';
+import { DomainError, uuid } from '#contracts/errors';
 import type { RequestData } from '../context/request-data';
 import type { QueryContext } from '../context/query-context';
 export class Access {
@@ -16,7 +16,8 @@ export class Access {
   async requireWorkspace(context: QueryContext, id: string) {
     const workspaceId = await this.workspace(context, id);
 
-    if (!workspaceId) throw new DomainError('FORBIDDEN', 'Пространство недоступно');
+    if (workspaceId?.status !== 'ACTIVE')
+      throw new DomainError('FORBIDDEN', 'Пространство недоступно');
 
     return workspaceId;
   }

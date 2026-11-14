@@ -1,33 +1,43 @@
 import { ApolloDriver, type ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
+import { CqrsModule } from '@nestjs/cqrs';
 import { GraphQLModule } from '@nestjs/graphql';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { backendRoot } from '../../../packages/config/src';
-import { CLIENTS } from '../../../packages/contracts/src';
+import { backendRoot } from '#config';
+import { CLIENTS, type Clients } from '#contracts';
+import { ApiMutationHandler, ApiQueryHandler } from './application/api-handlers';
+import { RequestData } from './context/request-data';
 import { Composition } from './application/composition';
-import { createContext } from './context/create-context';
-import type { QueryContext } from './context/query-context';
-import { createLocalRuntime, LOCAL_RUNTIME } from './mock-clients';
+import { GraphQLContext } from './context/create-context';
+import type { IncomingMessage } from 'node:http';
+import { LocalRuntime } from './local-runtime';
 import { formatError } from './presentation/format-error';
 import { resolvers } from './presentation/resolvers';
-import { queryLimits } from './presentation/query-limits';
+import { queryCost, queryLimits } from './presentation/query-limits';
 import { requestLogging } from './presentation/request-logging';
 
 const businessApi = !process.argv.includes('--read-only');
-type LocalRuntime = ReturnType<typeof createLocalRuntime>;
 
 @Module({
+  imports: [CqrsModule.forRoot()],
   providers: [
     Composition,
-    { provide: LOCAL_RUNTIME, useFactory: () => createLocalRuntime(businessApi) },
+    ApiMutationHandler,
+    ApiQueryHandler,
+    {
+      provide: RequestData,
+      inject: [CLIENTS],
+      useFactory: (clients: Clients) => new RequestData(clients),
+    },
+    LocalRuntime,
     {
       provide: CLIENTS,
-      inject: [LOCAL_RUNTIME],
+      inject: [LocalRuntime],
       useFactory: (runtime: LocalRuntime) => runtime.clients,
     },
   ],
-  exports: [Composition, LOCAL_RUNTIME],
+  exports: [Composition, LocalRuntime],
 })
 class CompositionModule {}
 
@@ -37,29 +47,31 @@ class CompositionModule {}
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
       imports: [CompositionModule],
-      inject: [Composition, LOCAL_RUNTIME],
+      inject: [Composition, LocalRuntime],
       useFactory: (composition: Composition, runtime: LocalRuntime) => ({
-        typeDefs: readFileSync(
-          resolve(
-            backendRoot(),
-            `contracts/graphql/${businessApi ? 'lab4' : 'svyaz-read'}.graphql`,
+        typeDefs: [
+          readFileSync(
+            resolve(
+              backendRoot(),
+              `contracts/graphql/${businessApi ? 'lab4' : 'svyaz-read'}.graphql`,
+            ),
+            'utf8',
           ),
-          'utf8',
-        ),
+          readFileSync(resolve(backendRoot(), 'contracts/graphql/auth.graphql'), 'utf8'),
+        ],
         resolvers: resolvers(composition, businessApi),
         formatError,
-        validationRules: [queryLimits()],
-        plugins: [requestLogging()],
+        validationRules: queryLimits,
+        plugins: [requestLogging(), queryCost()],
         introspection: true,
         playground: false,
         includeStacktraceInErrorResponses: false,
-        context: ({
-          req,
-        }: {
-          req: { headers: Record<string, string | undefined> };
-        }): QueryContext => {
-          return createContext(req.headers, composition.data, runtime.users);
-        },
+        context: ({ req }: { req: IncomingMessage }) =>
+          new GraphQLContext(
+            runtime,
+            req.headers.authorization,
+            req.socket.remoteAddress ?? 'local',
+          ),
       }),
     }),
   ],

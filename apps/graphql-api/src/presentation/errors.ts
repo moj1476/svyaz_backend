@@ -1,6 +1,5 @@
 import { GraphQLError } from 'graphql';
-import { DomainError } from '../../../../packages/contracts/src/errors';
-import type { QueryContext } from '../context/query-context';
+import { DomainError } from '#contracts/errors';
 
 export function logFailure(error: unknown, requestId: string): void {
   const details =
@@ -15,7 +14,7 @@ export function logFailure(error: unknown, requestId: string): void {
 
 export async function expose(
   action: () => Promise<unknown>,
-  context: QueryContext,
+  context: { requestId: string },
 ): Promise<unknown> {
   try {
     return await action();

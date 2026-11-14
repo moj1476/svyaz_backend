@@ -1,7 +1,10 @@
 import type { GraphQLScalarType } from 'graphql';
-import { mutationOwners } from '../../../../packages/contracts/src/commands';
+import type { QueryResolvers, MutationResolvers } from '#contracts/graphql-types';
+import { mutationOwners } from '#contracts/commands';
 import type { Composition } from '../application/composition';
+import type { GraphQLContext } from '../context/create-context';
 import type { Resolver } from './resolvers/types';
+import { authFields } from './resolvers/auth';
 import { workspaceFields } from './resolvers/workspace';
 import { identityFields } from './resolvers/identity';
 import { messagingFields } from './resolvers/messaging';
@@ -10,10 +13,22 @@ import { callsFields } from './resolvers/calls';
 import { scalars } from './scalars';
 import { expose } from './errors';
 
-export function resolvers(composition: Composition, businessApi: boolean) {
-  const Query: Record<string, Resolver> = {};
+export type GatewayResolver = (
+  parent: Parameters<Resolver>[0],
+  args: Parameters<Resolver>[1],
+  context: GraphQLContext,
+) => Promise<unknown>;
 
-  for (const name of [
+export function resolvers(composition: Composition, businessApi: boolean) {
+  const Query: Record<string, GatewayResolver> = {};
+  const auth = authFields(composition);
+  const protect =
+    (resolver: Resolver): GatewayResolver =>
+    (p, a, c) =>
+      expose(async () => resolver(p, a, await c.authenticated()), c);
+  Query.viewer = protect((_p, _a, c) => auth.viewer(c));
+
+  const queryNames = [
     'me',
     'sessions',
     'workspaces',
@@ -33,22 +48,32 @@ export function resolvers(composition: Composition, businessApi: boolean) {
     'search',
     'auditEvents',
     'adminDashboard',
-    ...(businessApi ? ['conversationStats'] : []),
-  ])
-    Query[name] = (_p, a, c) => expose(() => composition.query(name, a, c), c);
+    ...(businessApi ? (['conversationStats'] as const) : []),
+  ] satisfies (keyof QueryResolvers)[];
 
-  const result: Record<string, GraphQLScalarType | Record<string, Resolver>> = {
+  for (const name of queryNames)
+    Query[name] = protect((_p, a, c) => composition.query(name, a, c));
+
+  const Mutation: Record<string, GatewayResolver> = {
+    login: (p, a, c) => expose(() => auth.login(p, a, c), c),
+    register: (p, a, c) => expose(() => auth.register(p, a, c), c),
+    logout: (p, a, c) => expose(() => auth.logout(p, a, c), c),
+  };
+  if (businessApi) {
+    for (const name of Object.keys(mutationOwners) as (keyof MutationResolvers)[]) {
+      const secured = protect((_p, a, c) => composition.mutate(name, a, c));
+      Mutation[name] = (p, a, c) => {
+        c.invalidate();
+        return secured(p, a, c);
+      };
+    }
+  }
+
+  const result: Record<string, GraphQLScalarType | Record<string, GatewayResolver>> = {
     Query,
+    Mutation,
     ...scalars,
   };
-
-  const Mutation: Record<string, Resolver> = {};
-
-  for (const name of Object.keys(mutationOwners))
-    Mutation[name] = (_p, a, c) => expose(() => composition.mutate(name, a, c), c);
-
-  if (businessApi) result.Mutation = Mutation;
-
   const fields = {
     ...workspaceFields(composition.data),
     ...identityFields(composition.data),
@@ -58,10 +83,7 @@ export function resolvers(composition: Composition, businessApi: boolean) {
   };
   for (const [type, resolvers] of Object.entries(fields)) {
     result[type] = Object.fromEntries(
-      Object.entries(resolvers).map(([name, resolver]) => [
-        name,
-        (p, a, c) => expose(() => resolver(p, a, c), c),
-      ]),
+      Object.entries(resolvers).map(([name, resolver]) => [name, protect(resolver)]),
     );
   }
   return result;

@@ -1,4 +1,4 @@
-import { buildSchema, Kind, parse, print, validateSchema } from 'graphql';
+import { buildSchema, extendSchema, Kind, parse, print, validateSchema } from 'graphql';
 import { readFileSync, writeFileSync } from 'node:fs';
 
 for (const name of ['lab2-reference', 'svyaz-read']) {
@@ -10,6 +10,13 @@ for (const name of ['lab2-reference', 'svyaz-read']) {
 
   console.log(`${name} schema valid`);
 }
+
+const auth = parse(readFileSync('contracts/graphql/auth.graphql', 'utf8'));
+const readSchema = buildSchema(
+  readFileSync('contracts/graphql/svyaz-read.graphql', 'utf8'),
+);
+if (validateSchema(extendSchema(readSchema, auth)).length)
+  throw new Error('Схема GraphQL для чтения с аутентификацией некорректна');
 
 const base = parse(readFileSync('contracts/graphql/svyaz-read.graphql', 'utf8'));
 
@@ -52,7 +59,17 @@ const definitions = base.definitions
 
 const text = print({ ...base, definitions });
 
-const errors = validateSchema(buildSchema(text));
+const errors = validateSchema(
+  extendSchema(buildSchema(text), {
+    ...auth,
+    definitions: auth.definitions.map((definition) =>
+      definition.kind === Kind.OBJECT_TYPE_DEFINITION &&
+      definition.name.value === 'Mutation'
+        ? { ...definition, kind: Kind.OBJECT_TYPE_EXTENSION }
+        : definition,
+    ),
+  }),
+);
 
 if (errors.length) throw new Error('Схема GraphQL некорректна', { cause: errors });
 

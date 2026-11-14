@@ -4,6 +4,8 @@ export type ErrorCode =
   | 'VALIDATION'
   | 'UNAVAILABLE'
   | 'UNAUTHENTICATED'
+  | 'INVALID_CREDENTIALS'
+  | 'RATE_LIMITED'
   | 'CONFLICT'
   | 'STALE_VERSION'
   | 'INVALID_STATE';

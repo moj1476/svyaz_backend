@@ -3,8 +3,8 @@ import type {
   User as DbUser,
   Device as DbDevice,
   Session as DbSession,
-} from '../../../../../generated/identity/client';
-import type { IdentityData } from '../../../../../packages/contracts/src';
+} from '#generated/identity/client';
+import type { IdentityData } from '#contracts';
 
 type User = NonNullable<IdentityData['users']>[number];
 
@@ -14,7 +14,10 @@ type Session = NonNullable<IdentityData['sessions']>[number];
 
 export function fromUser(row: DbUser): User {
   return {
-    ...row,
+    id: row.id,
+    login: row.login,
+    displayName: row.displayName,
+    avatarFileId: row.avatarFileId,
     status: row.status as User['status'],
     version: row.version.toString(),
   };
