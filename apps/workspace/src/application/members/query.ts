@@ -1,14 +1,8 @@
-import type {
-  RequestContext,
-  WorkspaceData,
-} from '../../../../../packages/contracts/src';
-import { DomainError } from '../../../../../packages/contracts/src/errors';
-import type {
-  QueryInput,
-  QueryOutput,
-} from '../../../../../packages/contracts/src/queries';
-import { identifier } from '../../../../../packages/runtime/src/validation';
-import { page } from '../../../../../packages/runtime/src/read-processing';
+import type { RequestContext, WorkspaceData } from '#contracts';
+import { DomainError } from '#contracts/errors';
+import type { QueryInput, QueryOutput } from '#contracts/queries';
+import { identifier } from '#runtime/validation';
+import { page } from '#runtime/read-processing';
 import type { WorkspacePolicy } from '../policies/workspace.policy';
 
 export async function members(

@@ -1,10 +1,7 @@
-import type { IdentityData, RequestContext } from '../../../../../packages/contracts/src';
-import type {
-  CommandInput,
-  CommandOutput,
-} from '../../../../../packages/contracts/src/command-map';
-import { DomainError } from '../../../../../packages/contracts/src/errors';
-import { identifier } from '../../../../../packages/runtime/src/validation';
+import type { IdentityData, RequestContext } from '#contracts';
+import type { CommandInput, CommandOutput } from '#contracts/command-map';
+import { DomainError } from '#contracts/errors';
+import { identifier } from '#runtime/validation';
 import type { IdentityPolicy } from '../policies/identity.policy';
 
 export async function revokeSession(

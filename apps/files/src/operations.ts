@@ -1,10 +1,10 @@
 import { events } from './domain/events';
-import type { FilesData, RequestContext } from '../../../packages/contracts/src';
-import type { AccessClient } from '../../../packages/contracts/src/access';
-import type { TransactionStore } from '../../../packages/contracts/src/commands';
-import { DomainError } from '../../../packages/contracts/src/errors';
-import { identifier } from '../../../packages/runtime/src/validation';
-import { ServiceBase } from '../../../packages/runtime/src/service-base';
+import type { FilesData, RequestContext } from '#contracts';
+import type { AccessClient } from '#contracts/access';
+import type { TransactionStore } from '#contracts/commands';
+import { DomainError } from '#contracts/errors';
+import { identifier } from '#runtime/validation';
+import { ServiceBase } from '#runtime/service-base';
 import { ReadService } from './application';
 import { deleteFile } from './application/delete-file/handler';
 import { FilesPolicy } from './application/policies/files.policy';

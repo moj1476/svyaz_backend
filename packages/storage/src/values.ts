@@ -1,6 +1,6 @@
-import type { Prisma } from '../../../generated/identity/client';
-import { canonical } from '../../contracts/src/canonical';
-import { DomainError } from '../../contracts/src/errors';
+import type { Prisma } from '#generated/identity/client';
+import { canonical } from '#contracts/canonical';
+import { DomainError } from '#contracts/errors';
 
 export function jsonValue(value: unknown): Prisma.InputJsonValue {
   const encoded = JSON.stringify(value);

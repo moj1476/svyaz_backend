@@ -1,36 +1,31 @@
-import { services, sqlServices, type ServiceName } from '../packages/contracts/src';
+import { services, sqlServices, type ServiceName } from '#contracts';
 import { prisma } from './prisma';
-import { seedSql } from './seed/sql';
-import { seedPresence } from './seed/presence';
-import { seedSearch } from './seed/search';
+import { initializeIdentity, initializePermissions } from './initialize-sql';
+import { initializeSearch } from './initialize-search';
 
 async function main() {
-  const operation = process.argv[2];
-
-  if (operation !== 'migrate' && operation !== 'seed')
-    throw new Error('Используйте migrate или seed');
-
-  const selected = process.argv.slice(3).find((arg) => !arg.startsWith('--')) as
-    ServiceName | undefined;
-
-  const sqlOnly = process.argv.includes('--sql-only');
-
+  const [operation, ...args] = process.argv.slice(2);
+  const selected = args.find((arg) => !arg.startsWith('--')) as ServiceName | undefined;
   if (selected && !services.includes(selected))
     throw new Error(`Неизвестный сервис: ${selected}`);
 
-  if (operation === 'migrate' && selected && !sqlServices.some((s) => s === selected))
-    throw new Error(`Для сервиса ${selected} нет SQL-миграций; используйте seed`);
+  if (operation === 'migrate') {
+    if (selected && !sqlServices.some((service) => service === selected))
+      throw new Error(`Для сервиса ${selected} нет SQL-миграций`);
 
-  for (const service of sqlServices.filter((s) => !selected || s === selected)) {
-    if (operation === 'migrate') prisma(service, ['migrate', 'deploy']);
-    else await seedSql(service);
+    for (const service of sqlServices.filter(
+      (service) => !selected || service === selected,
+    ))
+      prisma(service, ['migrate', 'deploy']);
+    return;
   }
 
-  if (operation === 'seed' && !sqlOnly) {
-    if (!selected || selected === 'presence') await seedPresence();
+  if (operation !== 'seed') throw new Error('Используйте migrate или seed');
 
-    if (!selected || selected === 'search') await seedSearch();
-  }
+  if (!selected || selected === 'identity') await initializeIdentity();
+  if (!selected || selected === 'workspace') await initializePermissions();
+  if (!args.includes('--sql-only') && (!selected || selected === 'search'))
+    await initializeSearch();
 }
 
 main().catch((error) => {

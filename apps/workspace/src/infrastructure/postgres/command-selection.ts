@@ -1,9 +1,9 @@
-import type { WorkspaceData } from '../../../../../packages/contracts/src';
+import type { WorkspaceData } from '#contracts';
 
-import type { Prisma } from '../../../../../generated/workspace/client';
+import type { Prisma } from '#generated/workspace/client';
 
-import { type CommandSelection } from '../../../../../packages/storage/src/transactional-repository';
-import type { RequestContext } from '../../../../../packages/contracts/src';
+import { type CommandSelection } from '#storage/transactional-repository';
+import type { RequestContext } from '#contracts';
 
 import { loadState, loadWorkspaceState } from './state-loader';
 

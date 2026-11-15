@@ -1,16 +1,12 @@
-import type {
-  Conversation,
-  Message,
-  Clients,
-} from '../../../../../packages/contracts/src';
+import type { Clients } from '#contracts';
 import type { RequestData } from '../../context/request-data';
-import type { FieldResolvers } from './types';
-import { connection } from '../../../../../packages/contracts/src/pagination';
+import { requiredRelation, type FieldResolvers } from './types';
+import { connection } from '#contracts/pagination';
 export function messagingFields(source: RequestData, clients: Clients): FieldResolvers {
   return {
     Conversation: {
       members: async (parent, args, context) => {
-        const conversation = parent as Conversation;
+        const conversation = parent;
         const m = await source.data('messaging', context);
         const workspaceData = await source.data('workspace', context);
         const members = m.conversationMembers.filter(
@@ -31,7 +27,7 @@ export function messagingFields(source: RequestData, clients: Clients): FieldRes
       unreadCount: async (parent, _a, context) => {
         const result = (await clients.messaging.query!(
           'conversationStats',
-          { conversationId: (parent as Conversation).id },
+          { conversationId: parent.id },
           context,
         )) as { unreadCount: number };
 
@@ -40,17 +36,17 @@ export function messagingFields(source: RequestData, clients: Clients): FieldRes
     },
     Message: {
       sender: async (parent, _a, context) => {
-        return source.user(context, (parent as Message).senderId);
+        return requiredRelation(await source.user(context, parent.senderId));
       },
       attachments: async (parent, _a, context) => {
         return (await source.data('files', context)).attachments.filter(
-          (at) => at.messageId === (parent as Message).id,
+          (at) => at.messageId === parent.id,
         );
       },
       reactions: async (parent, _a, context) => {
         return clients.messaging.query!(
           'messageReactions',
-          { messageId: (parent as Message).id },
+          { messageId: parent.id },
           context,
         );
       },

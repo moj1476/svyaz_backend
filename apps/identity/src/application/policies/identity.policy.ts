@@ -1,7 +1,7 @@
-import type { IdentityData, RequestContext } from '../../../../../packages/contracts/src';
-import type { AccessClient } from '../../../../../packages/contracts/src/access';
-import type { TransactionStore } from '../../../../../packages/contracts/src/commands';
-import { DomainError } from '../../../../../packages/contracts/src/errors';
+import type { IdentityData, RequestContext } from '#contracts';
+import type { AccessClient } from '#contracts/access';
+import type { TransactionStore } from '#contracts/commands';
+import { DomainError } from '#contracts/errors';
 
 export class IdentityPolicy {
   constructor(

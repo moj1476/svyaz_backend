@@ -2,8 +2,8 @@ import type {
   Prisma,
   File as DbFile,
   Attachment as DbAttachment,
-} from '../../../../../generated/files/client';
-import type { FilesData } from '../../../../../packages/contracts/src';
+} from '#generated/files/client';
+import type { FilesData } from '#contracts';
 
 type File = NonNullable<FilesData['files']>[number];
 

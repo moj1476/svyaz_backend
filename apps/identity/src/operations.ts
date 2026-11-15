@@ -1,8 +1,8 @@
 import { events } from './domain/events';
-import type { IdentityData } from '../../../packages/contracts/src';
-import type { AccessClient } from '../../../packages/contracts/src/access';
-import type { TransactionStore } from '../../../packages/contracts/src/commands';
-import { ServiceBase } from '../../../packages/runtime/src/service-base';
+import type { IdentityData } from '#contracts';
+import type { AccessClient } from '#contracts/access';
+import type { TransactionStore } from '#contracts/commands';
+import { ServiceBase } from '#runtime/service-base';
 import { ReadService } from './application';
 import { revokeSession } from './application/revoke-session/handler';
 import { updateProfile } from './application/update-profile/handler';

@@ -1,17 +1,7 @@
-import type {
-  NotificationsData,
-  RequestContext,
-} from '../../../../../packages/contracts/src';
-import type {
-  QueryInput,
-  QueryOutput,
-} from '../../../../../packages/contracts/src/queries';
-import { identifier } from '../../../../../packages/runtime/src/validation';
-import {
-  dateRange,
-  inDates,
-  page,
-} from '../../../../../packages/runtime/src/read-processing';
+import type { NotificationsData, RequestContext } from '#contracts';
+import type { QueryInput, QueryOutput } from '#contracts/queries';
+import { identifier } from '#runtime/validation';
+import { dateRange, inDates, page } from '#runtime/read-processing';
 import type { NotificationsPolicy } from '../policies/notifications.policy';
 
 export async function notifications(

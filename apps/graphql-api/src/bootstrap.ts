@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { localOnly, required } from '../../../packages/config/src';
+import { localOnly, required } from '#config';
 import { AppModule } from './graphql.module';
 
 export async function bootstrap() {
@@ -7,9 +7,11 @@ export async function bootstrap() {
 
   const app = await NestFactory.create(AppModule, {
     logger: ['error', 'warn'],
+    abortOnError: false,
   });
 
   app.enableShutdownHooks();
+  process.once('disconnect', () => void app.close());
 
   const port = Number(required('PORT'));
 

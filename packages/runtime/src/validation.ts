@@ -1,4 +1,4 @@
-import { DomainError, uuid } from '../../contracts/src/errors';
+import { DomainError, uuid } from '#contracts/errors';
 export function text(value: unknown, name: string, max = 200): string {
   if (typeof value !== 'string' || !value.trim() || value.trim().length > max)
     throw new DomainError(

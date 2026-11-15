@@ -1,6 +1,6 @@
-import type { Clients } from '../../../../../packages/contracts/src';
-import type { Dashboard } from '../../../../../packages/contracts/src/statistics';
-import { DomainError } from '../../../../../packages/contracts/src/errors';
+import type { Clients } from '#contracts';
+import type { Dashboard } from '#contracts/statistics';
+import { DomainError } from '#contracts/errors';
 import type { QueryContext } from '../../context/query-context';
 import type { Access } from '../access';
 export async function dashboard(
@@ -28,9 +28,6 @@ export async function dashboard(
 
   for (const owner of ['workspace', 'messaging', 'files', 'calls'] as const) {
     try {
-      if (context.failed === owner)
-        throw new DomainError('UNAVAILABLE', 'Источник недоступен');
-
       const client = clients[owner];
 
       if (!client.statistics) throw new Error('Обработчик сводных данных отсутствует');

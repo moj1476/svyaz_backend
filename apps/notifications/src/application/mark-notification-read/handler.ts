@@ -1,13 +1,7 @@
-import type {
-  NotificationsData,
-  RequestContext,
-} from '../../../../../packages/contracts/src';
-import type {
-  CommandInput,
-  CommandOutput,
-} from '../../../../../packages/contracts/src/command-map';
-import { DomainError } from '../../../../../packages/contracts/src/errors';
-import { bool, identifier } from '../../../../../packages/runtime/src/validation';
+import type { NotificationsData, RequestContext } from '#contracts';
+import type { CommandInput, CommandOutput } from '#contracts/command-map';
+import { DomainError } from '#contracts/errors';
+import { bool, identifier } from '#runtime/validation';
 import type { NotificationsPolicy } from '../policies/notifications.policy';
 
 export async function markNotificationRead(

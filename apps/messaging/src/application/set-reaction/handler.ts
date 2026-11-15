@@ -1,14 +1,8 @@
 import { assertMessagePresent } from '../../domain/message';
-import type {
-  MessagingData,
-  RequestContext,
-} from '../../../../../packages/contracts/src';
-import type {
-  CommandInput,
-  CommandOutput,
-} from '../../../../../packages/contracts/src/command-map';
-import { DomainError } from '../../../../../packages/contracts/src/errors';
-import { bool, identifier, text } from '../../../../../packages/runtime/src/validation';
+import type { MessagingData, RequestContext } from '#contracts';
+import type { CommandInput, CommandOutput } from '#contracts/command-map';
+import { DomainError } from '#contracts/errors';
+import { bool, identifier, text } from '#runtime/validation';
 import type { MessagingPolicy } from '../policies/messaging.policy';
 
 export async function setReaction(

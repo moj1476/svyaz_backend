@@ -1,11 +1,7 @@
 import { createClient } from 'redis';
-import { required } from '../../../../../packages/config/src';
-import type {
-  Presence,
-  PresenceData,
-  ReadRepository,
-} from '../../../../../packages/contracts/src';
-import type { ReadScope } from '../../../../../packages/contracts/src/read-scope';
+import { required } from '#config';
+import type { Presence, PresenceData, ReadRepository } from '#contracts';
+import type { ReadScope } from '#contracts/read-scope';
 
 export class Repository implements ReadRepository<PresenceData> {
   private client = createClient({

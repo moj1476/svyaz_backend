@@ -1,6 +1,6 @@
 import { GraphQLError, GraphQLScalarType, Kind, type ValueNode } from 'graphql';
-import GraphQLJSON from 'graphql-type-json';
-import { dateTime } from '../../../../packages/contracts/src/validation';
+import { GraphQLJSON } from 'graphql-scalars';
+import { dateTime } from '#contracts/validation';
 
 function long(value: unknown): string {
   if (typeof value === 'number' && !Number.isSafeInteger(value))

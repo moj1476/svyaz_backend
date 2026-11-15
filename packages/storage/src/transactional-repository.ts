@@ -1,11 +1,11 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
-import type { Prisma } from '../../../generated/identity/client';
-import type { RequestContext } from '../../contracts/src';
-import type { TransactionStore } from '../../contracts/src/commands';
-import type { DomainEvent, OutboxWriter } from '../../contracts/src/events';
-import type { ReadScope } from '../../contracts/src/read-scope';
-import { DomainError } from '../../contracts/src/errors';
-import { commandIdentity } from '../../contracts/src/idempotency';
+import type { Prisma } from '#generated/identity/client';
+import type { RequestContext } from '#contracts';
+import type { TransactionStore } from '#contracts/commands';
+import type { DomainEvent, OutboxWriter } from '#contracts/events';
+import type { ReadScope } from '#contracts/read-scope';
+import { DomainError } from '#contracts/errors';
+import { commandIdentity } from '#contracts/idempotency';
 import { canonical, jsonValue } from './values';
 
 interface CommandSession {
@@ -90,7 +90,7 @@ export abstract class TransactionalRepository<
     if (!request && !scope) throw new Error('Требуется явно указать область чтения');
 
     return this.transaction(async (client) => {
-      if (request) {
+      if (!scope && request) {
         const selection = await this.command(
           client,
           request.operation,

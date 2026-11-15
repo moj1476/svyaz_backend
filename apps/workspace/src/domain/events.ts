@@ -1,5 +1,5 @@
-import { event } from '../../../../packages/contracts/src/events';
-import type { CommandEvents } from '../../../../packages/contracts/src/events';
+import { event } from '#contracts/events';
+import type { CommandEvents } from '#contracts/events';
 
 export const events: CommandEvents<'workspace'> = {
   createWorkspace: (_input, output, context) => [

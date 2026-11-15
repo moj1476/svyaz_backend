@@ -7,10 +7,8 @@ export function required(name: string): string {
 }
 
 export function localOnly() {
-  if (process.env.NODE_ENV !== 'development' || process.env.LAB_DEV_AUTH !== 'true')
-    throw new Error(
-      'Локальный mock API разрешён только с NODE_ENV=development и LAB_DEV_AUTH=true',
-    );
+  if (process.env.NODE_ENV !== 'development')
+    throw new Error('Локальный GraphQL API разрешён только с NODE_ENV=development');
 }
 
 import { existsSync } from 'node:fs';

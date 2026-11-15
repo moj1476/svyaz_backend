@@ -1,16 +1,9 @@
-import type { AuditData, RequestContext } from '../../../../../packages/contracts/src';
-import type { AccessClient } from '../../../../../packages/contracts/src/access';
-import { DomainError } from '../../../../../packages/contracts/src/errors';
-import type {
-  QueryInput,
-  QueryOutput,
-} from '../../../../../packages/contracts/src/queries';
-import { identifier } from '../../../../../packages/runtime/src/validation';
-import {
-  dateRange,
-  inDates,
-  page,
-} from '../../../../../packages/runtime/src/read-processing';
+import type { AuditData, RequestContext } from '#contracts';
+import type { AccessClient } from '#contracts/access';
+import { DomainError } from '#contracts/errors';
+import type { QueryInput, QueryOutput } from '#contracts/queries';
+import { identifier } from '#runtime/validation';
+import { dateRange, inDates, page } from '#runtime/read-processing';
 import type { AuditReadRepository } from '../ports/read-repository';
 
 export async function auditEvents(

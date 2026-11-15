@@ -1,7 +1,7 @@
-import type { Conversation, Message } from '../../../../../../packages/contracts/src';
+import type { Conversation, Message } from '#contracts';
 
 import { fromConversation, fromMessage } from '../mapping';
-import type { ServiceDatabase } from '../../../../../../packages/storage/src/prisma';
+import type { ServiceDatabase } from '#storage/prisma';
 export async function getConversationForUser(
   db: ServiceDatabase<'messaging'>,
   conversationId: string,

@@ -1,7 +1,7 @@
-import type { MessagingData } from '../../../../../packages/contracts/src';
+import type { MessagingData } from '#contracts';
 
-import type { Prisma } from '../../../../../generated/messaging/client';
-import type { ReadScope } from '../../../../../packages/contracts/src/read-scope';
+import type { Prisma } from '#generated/messaging/client';
+import type { ReadScope } from '#contracts/read-scope';
 
 import {
   fromConversation,

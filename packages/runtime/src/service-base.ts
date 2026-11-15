@@ -1,23 +1,18 @@
-import { record } from '../../contracts/src/validation';
-import type { DomainEvent, CommandEvents } from '../../contracts/src/events';
-import type {
-  DataMap,
-  RequestContext,
-  ServiceClient,
-  ServiceName,
-} from '../../contracts/src';
-import type { AccessClient } from '../../contracts/src/access';
+import { record } from '#contracts/validation';
+import type { DomainEvent, CommandEvents } from '#contracts/events';
+import type { DataMap, RequestContext, ServiceClient, ServiceName } from '#contracts';
+import type { AccessClient } from '#contracts/access';
 import type {
   CommandInput,
   CommandName,
   CommandOutput,
   CommandResult,
   ServiceCommand,
-} from '../../contracts/src/command-map';
-import { mutationOwners } from '../../contracts/src/command-map';
-import type { TransactionStore } from '../../contracts/src/commands';
-import { DomainError } from '../../contracts/src/errors';
-import { parseCommandInput } from '../../contracts/src/parse-input';
+} from '#contracts/command-map';
+import { mutationOwners } from '#contracts/command-map';
+import type { TransactionStore } from '#contracts/commands';
+import { DomainError } from '#contracts/errors';
+import { parseCommandInput } from '#contracts/parse-input';
 import { queryDispatcher } from './query-dispatch';
 
 export type CommandHandler<N extends CommandName, S extends ServiceName> = (
@@ -106,7 +101,7 @@ export class ServiceBase<S extends ServiceName> implements ServiceClient<S> {
   async statistics(
     _workspaceId: string,
     _context: RequestContext,
-  ): Promise<import('../../contracts/src/statistics').ServiceStatistics<S>> {
+  ): Promise<import('#contracts/statistics').ServiceStatistics<S>> {
     throw new DomainError('VALIDATION', 'Агрегат не поддерживается');
   }
 }

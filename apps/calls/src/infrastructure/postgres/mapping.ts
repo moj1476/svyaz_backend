@@ -3,8 +3,8 @@ import type {
   Call as DbCall,
   CallParticipant as DbCallParticipant,
   CallRecording as DbCallRecording,
-} from '../../../../../generated/calls/client';
-import type { CallsData } from '../../../../../packages/contracts/src';
+} from '#generated/calls/client';
+import type { CallsData } from '#contracts';
 
 type Call = NonNullable<CallsData['calls']>[number];
 

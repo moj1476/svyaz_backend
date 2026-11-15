@@ -1,6 +1,6 @@
-import type { RequestContext } from '../../contracts/src';
-import { DomainError } from '../../contracts/src/errors';
-import type { QueryInput, QueryName, QueryOutput } from '../../contracts/src/queries';
+import type { RequestContext } from '#contracts';
+import { DomainError } from '#contracts/errors';
+import type { QueryInput, QueryName, QueryOutput } from '#contracts/queries';
 
 export type QueryHandlers = {
   [N in QueryName]?: (

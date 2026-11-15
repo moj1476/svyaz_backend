@@ -1,4 +1,4 @@
-import { event, type CommandEvents } from '../../../../packages/contracts/src/events';
+import { event, type CommandEvents } from '#contracts/events';
 
 export const events: CommandEvents<'messaging'> = {
   updateConversation: (_input, output, context) => [

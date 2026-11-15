@@ -1,10 +1,7 @@
-import type { FilesData, RequestContext } from '../../../../../packages/contracts/src';
-import type {
-  CommandInput,
-  CommandOutput,
-} from '../../../../../packages/contracts/src/command-map';
-import { DomainError } from '../../../../../packages/contracts/src/errors';
-import { identifier, text } from '../../../../../packages/runtime/src/validation';
+import type { FilesData, RequestContext } from '#contracts';
+import type { CommandInput, CommandOutput } from '#contracts/command-map';
+import { DomainError } from '#contracts/errors';
+import { identifier, text } from '#runtime/validation';
 import type { FilesPolicy } from '../policies/files.policy';
 
 export async function deleteFile(

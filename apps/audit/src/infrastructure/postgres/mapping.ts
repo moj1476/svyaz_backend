@@ -1,9 +1,6 @@
-import type {
-  Prisma,
-  AuditEvent as DbAuditEvent,
-} from '../../../../../generated/audit/client';
-import type { AuditData } from '../../../../../packages/contracts/src';
-import { jsonValue } from '../../../../../packages/storage/src/values';
+import type { Prisma, AuditEvent as DbAuditEvent } from '#generated/audit/client';
+import type { AuditData } from '#contracts';
+import { jsonValue } from '#storage/values';
 
 type AuditEvent = NonNullable<AuditData['events']>[number];
 

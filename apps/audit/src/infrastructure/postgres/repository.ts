@@ -1,9 +1,9 @@
-import type { AuditData, AuditEvent } from '../../../../../packages/contracts/src';
-import type { QueryInput } from '../../../../../packages/contracts/src/queries';
-import { addFilter, selectPage } from '../../../../../packages/storage/src/page';
-import type { Prisma } from '../../../../../generated/audit/client';
-import type { ReadScope } from '../../../../../packages/contracts/src/read-scope';
-import { databaseFor, sqlExecutor } from '../../../../../packages/storage/src/prisma';
+import type { AuditData, AuditEvent } from '#contracts';
+import type { QueryInput } from '#contracts/queries';
+import { addFilter, selectPage } from '#storage/page';
+import type { Prisma } from '#generated/audit/client';
+import type { ReadScope } from '#contracts/read-scope';
+import { databaseFor, sqlExecutor } from '#storage/prisma';
 import { fromAuditEvent } from './mapping';
 
 interface StateSelection {

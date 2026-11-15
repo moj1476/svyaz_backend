@@ -1,18 +1,15 @@
-import type {
-  Notification,
-  NotificationsData,
-} from '../../../../../packages/contracts/src';
-import type { QueryInput } from '../../../../../packages/contracts/src/queries';
-import { addFilter, selectPage } from '../../../../../packages/storage/src/page';
-import type { Prisma } from '../../../../../generated/notifications/client';
-import type { ReadScope } from '../../../../../packages/contracts/src/read-scope';
-import { databaseFor, sqlExecutor } from '../../../../../packages/storage/src/prisma';
+import type { Notification, NotificationsData } from '#contracts';
+import type { QueryInput } from '#contracts/queries';
+import { addFilter, selectPage } from '#storage/page';
+import type { Prisma } from '#generated/notifications/client';
+import type { ReadScope } from '#contracts/read-scope';
+import { databaseFor, sqlExecutor } from '#storage/prisma';
 import {
   TransactionalRepository,
   type CommandSelection,
-} from '../../../../../packages/storage/src/transactional-repository';
-import type { RequestContext } from '../../../../../packages/contracts/src';
-import { canonical, assertUpdated } from '../../../../../packages/storage/src/values';
+} from '#storage/transactional-repository';
+import type { RequestContext } from '#contracts';
+import { canonical, assertUpdated } from '#storage/values';
 import { fromNotification, toNotification } from './mapping';
 
 interface StateSelection {

@@ -1,4 +1,4 @@
-import type { ServiceDatabase } from '../../../../../../packages/storage/src/prisma';
+import type { ServiceDatabase } from '#storage/prisma';
 export async function workspaceVisible(
   db: ServiceDatabase<'workspace'>,
   workspaceId: string,

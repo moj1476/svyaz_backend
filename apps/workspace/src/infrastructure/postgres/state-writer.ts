@@ -1,8 +1,8 @@
-import type { WorkspaceData } from '../../../../../packages/contracts/src';
+import type { WorkspaceData } from '#contracts';
 
-import type { Prisma } from '../../../../../generated/workspace/client';
+import type { Prisma } from '#generated/workspace/client';
 
-import { canonical, assertUpdated } from '../../../../../packages/storage/src/values';
+import { canonical, assertUpdated } from '#storage/values';
 import {
   toWorkspace,
   toRole,
@@ -31,7 +31,10 @@ export async function saveState(
       else {
         const updated = await client.workspace.updateMany({
           where: { id: row.id, version: BigInt(prior.version) },
-          data,
+          data: {
+            ...data,
+            version: { increment: BigInt(row.version) - BigInt(prior.version) },
+          },
         });
 
         assertUpdated(updated.count);
@@ -52,7 +55,10 @@ export async function saveState(
       else {
         const updated = await client.role.updateMany({
           where: { id: row.id, version: BigInt(prior.version) },
-          data,
+          data: {
+            ...data,
+            version: { increment: BigInt(row.version) - BigInt(prior.version) },
+          },
         });
 
         assertUpdated(updated.count);
@@ -104,7 +110,10 @@ export async function saveState(
       else {
         const updated = await client.membership.updateMany({
           where: { id: row.id, version: BigInt(prior.version) },
-          data,
+          data: {
+            ...data,
+            version: { increment: BigInt(row.version) - BigInt(prior.version) },
+          },
         });
 
         assertUpdated(updated.count);
@@ -155,7 +164,10 @@ export async function saveState(
       else {
         const updated = await client.securityPolicy.updateMany({
           where: { workspaceId: row.workspaceId, version: BigInt(prior.version) },
-          data,
+          data: {
+            ...data,
+            version: { increment: BigInt(row.version) - BigInt(prior.version) },
+          },
         });
 
         assertUpdated(updated.count);

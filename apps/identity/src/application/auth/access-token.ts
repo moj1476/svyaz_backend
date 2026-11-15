@@ -8,6 +8,10 @@ const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toStrin
 );
 const tokenPattern = /^[\w-]+\.[\w-]+\.[\w-]{43}$/;
 
+function invalidToken() {
+  return new DomainError('UNAUTHENTICATED', 'Требуется вход в аккаунт');
+}
+
 interface Claims {
   iss: typeof issuer;
   aud: typeof audience;
@@ -68,11 +72,11 @@ export class AccessToken {
           )
             return { userId: uuid(claims.sub), sessionId: uuid(claims.jti) };
         } catch {
-          // Invalid claims use the same error as invalid signatures.
+          throw invalidToken();
         }
       }
     }
-    throw new DomainError('UNAUTHENTICATED', 'Требуется вход в аккаунт');
+    throw invalidToken();
   }
 
   private sign(data: string) {

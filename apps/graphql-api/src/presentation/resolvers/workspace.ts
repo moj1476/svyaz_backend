@@ -1,41 +1,45 @@
-import type { Workspace, Membership, Role } from '../../../../../packages/contracts/src';
 import type { RequestData } from '../../context/request-data';
-import type { FieldResolvers } from './types';
+import { requiredRelation, type FieldResolvers } from './types';
 
 export function workspaceFields(source: RequestData): FieldResolvers {
   return {
     Workspace: {
       myMembership: async (parent, _a, context) => {
-        return (await source.data('workspace', context)).memberships.find(
-          (m) =>
-            m.workspaceId === (parent as Workspace).id && m.userId === context.userId,
+        return requiredRelation(
+          (await source.data('workspace', context)).memberships.find(
+            (m) => m.workspaceId === parent.id && m.userId === context.userId,
+          ),
         );
       },
       policy: async (parent, _a, context) => {
-        return (await source.data('workspace', context)).policies.find(
-          (p) => p.workspaceId === (parent as Workspace).id,
+        return requiredRelation(
+          (await source.data('workspace', context)).policies.find(
+            (p) => p.workspaceId === parent.id,
+          ),
         );
       },
     },
     Membership: {
       user: async (parent, _a, context) => {
-        return source.user(context, (parent as Membership).userId);
+        return requiredRelation(await source.user(context, parent.userId));
       },
       role: async (parent, _a, context) => {
-        return (await source.data('workspace', context)).roles.find(
-          (r) => r.id === (parent as Membership).roleId,
+        return requiredRelation(
+          (await source.data('workspace', context)).roles.find(
+            (r) => r.id === parent.roleId,
+          ),
         );
       },
       teams: async (parent, _a, context) => {
         return (await source.data('workspace', context)).teams.filter((t) =>
-          t.membershipIds.includes((parent as Membership).id),
+          t.membershipIds.includes(parent.id),
         );
       },
     },
     Role: {
       permissions: async (parent, _a, context) => {
         return (await source.data('workspace', context)).permissions.filter((p) =>
-          (parent as Role).permissionIds.includes(p.id),
+          parent.permissionIds.includes(p.id),
         );
       },
     },

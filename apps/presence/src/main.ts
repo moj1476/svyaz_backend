@@ -1,9 +1,7 @@
 import 'reflect-metadata';
-import { launch } from '../../../adapters/mocks/launch';
-import { ReadService } from './application';
-import { Repository } from './repository';
+import { launch } from '#adapters/grpc/launch';
 
-launch('presence', ReadService, Repository).catch((error) => {
+launch('presence').catch((error) => {
   console.error(error.message);
   process.exitCode = 1;
 });

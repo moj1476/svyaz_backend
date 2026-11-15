@@ -1,13 +1,13 @@
-import type { IdentityData } from '../../../../../packages/contracts/src';
-import type { Prisma } from '../../../../../generated/identity/client';
-import type { ReadScope } from '../../../../../packages/contracts/src/read-scope';
-import { databaseFor } from '../../../../../packages/storage/src/prisma';
+import type { IdentityData } from '#contracts';
+import type { Prisma } from '#generated/identity/client';
+import type { ReadScope } from '#contracts/read-scope';
+import { databaseFor } from '#storage/prisma';
 import {
   TransactionalRepository,
   type CommandSelection,
-} from '../../../../../packages/storage/src/transactional-repository';
-import type { RequestContext } from '../../../../../packages/contracts/src';
-import { canonical, assertUpdated } from '../../../../../packages/storage/src/values';
+} from '#storage/transactional-repository';
+import type { RequestContext } from '#contracts';
+import { canonical, assertUpdated } from '#storage/values';
 import {
   fromUser,
   toUser,
@@ -111,7 +111,10 @@ export class Repository extends TransactionalRepository<
         else {
           const updated = await client.user.updateMany({
             where: { id: row.id, version: BigInt(prior.version) },
-            data,
+            data: {
+              ...data,
+              version: { increment: BigInt(row.version) - BigInt(prior.version) },
+            },
           });
 
           assertUpdated(updated.count);

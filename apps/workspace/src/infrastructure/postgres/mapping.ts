@@ -5,9 +5,9 @@ import type {
   Membership as DbMembership,
   SecurityPolicy as DbSecurityPolicy,
   Invitation as DbInvitation,
-} from '../../../../../generated/workspace/client';
-import type { WorkspaceData } from '../../../../../packages/contracts/src';
-import { jsonValue } from '../../../../../packages/storage/src/values';
+} from '#generated/workspace/client';
+import type { WorkspaceData } from '#contracts';
+import { jsonValue } from '#storage/values';
 
 type Workspace = NonNullable<WorkspaceData['workspaces']>[number];
 

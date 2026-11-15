@@ -17,23 +17,35 @@ const services = [
 ];
 const implementationImports = [
   '**/apps/**',
+  '#apps/**',
   ...services.map((service) => `**/${service}/src/**`),
 ];
 const domainInfrastructure = [
   '**/application/**',
   '**/infrastructure/**',
   '**/packages/storage/**',
+  '#storage/**',
   '**/packages/runtime/**',
+  '#runtime/**',
   '@nestjs/**',
   'pg',
   '@prisma/**',
   '**/generated/**',
+  '#generated/**',
   'redis',
   'graphql',
   '@apollo/**',
 ];
 export default tseslint.config(
-  { ignores: ['dist/**', 'node_modules/**', 'generated/**'] },
+  {
+    ignores: [
+      'dist/**',
+      'node_modules/**',
+      'generated/**',
+      'packages/contracts/src/graphql-types.ts',
+      'packages/contracts/src/graphql-validation.ts',
+    ],
+  },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
@@ -63,7 +75,7 @@ export default tseslint.config(
         {
           patterns: [
             {
-              group: ['**/apps/**'],
+              group: ['**/apps/**', '#apps/**'],
               message:
                 'Import a public client port; app implementations belong only in composition roots.',
             },
@@ -86,10 +98,13 @@ export default tseslint.config(
             {
               group: [
                 '**/apps/**',
+                '#apps/**',
                 ...services
                   .filter((other) => other !== service)
                   .map((other) => `**/${other}/src/**`),
-                ...(service === 'graphql-api' ? ['**/packages/storage/**'] : []),
+                ...(service === 'graphql-api'
+                  ? ['**/packages/storage/**', '#storage/**']
+                  : []),
               ],
               message:
                 'Use the service client port; do not import another service implementation.',
@@ -130,9 +145,11 @@ export default tseslint.config(
                 ...implementationImports,
                 '**/infrastructure/**',
                 '**/packages/storage/**',
+                '#storage/**',
                 'pg',
                 '@prisma/**',
                 '**/generated/**',
+                '#generated/**',
                 'redis',
                 '@nestjs/**',
                 'graphql',

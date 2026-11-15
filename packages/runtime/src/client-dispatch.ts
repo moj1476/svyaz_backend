@@ -1,19 +1,19 @@
-import type { Clients, RequestContext } from '../../contracts/src';
+import type { Clients, RequestContext } from '#contracts';
 import {
   mutationOwners,
   type CommandName,
   type CommandClient,
   type CommandInput,
   type CommandResult,
-} from '../../contracts/src/command-map';
+} from '#contracts/command-map';
 import {
   queryOwners,
   type QueryName,
   type QueryClient,
   type QueryInput,
   type QueryOutput,
-} from '../../contracts/src/queries';
-import { DomainError } from '../../contracts/src/errors';
+} from '#contracts/queries';
+import { DomainError } from '#contracts/errors';
 
 export function executeClient<N extends CommandName>(
   clients: Clients,

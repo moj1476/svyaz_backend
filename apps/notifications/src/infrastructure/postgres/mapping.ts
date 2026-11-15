@@ -1,9 +1,9 @@
 import type {
   Prisma,
   Notification as DbNotification,
-} from '../../../../../generated/notifications/client';
-import type { NotificationsData } from '../../../../../packages/contracts/src';
-import { jsonValue } from '../../../../../packages/storage/src/values';
+} from '#generated/notifications/client';
+import type { NotificationsData } from '#contracts';
+import { jsonValue } from '#storage/values';
 
 type Notification = NonNullable<NotificationsData['notifications']>[number];
 

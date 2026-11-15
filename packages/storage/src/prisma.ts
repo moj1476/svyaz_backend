@@ -1,11 +1,11 @@
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient as IdentityClient } from '../../../generated/identity/client';
-import { PrismaClient as WorkspaceClient } from '../../../generated/workspace/client';
-import { PrismaClient as MessagingClient } from '../../../generated/messaging/client';
-import { PrismaClient as FilesClient } from '../../../generated/files/client';
-import { PrismaClient as NotificationsClient } from '../../../generated/notifications/client';
-import { PrismaClient as CallsClient } from '../../../generated/calls/client';
-import { PrismaClient as AuditClient } from '../../../generated/audit/client';
+import { PrismaClient as IdentityClient } from '#generated/identity/client';
+import { PrismaClient as WorkspaceClient } from '#generated/workspace/client';
+import { PrismaClient as MessagingClient } from '#generated/messaging/client';
+import { PrismaClient as FilesClient } from '#generated/files/client';
+import { PrismaClient as NotificationsClient } from '#generated/notifications/client';
+import { PrismaClient as CallsClient } from '#generated/calls/client';
+import { PrismaClient as AuditClient } from '#generated/audit/client';
 import { databaseSchema, databaseUrl, type SqlService } from './connection';
 
 const transactionOptions = { maxWait: 5000, timeout: 15000 };

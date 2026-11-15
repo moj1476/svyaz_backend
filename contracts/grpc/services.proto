@@ -1,0 +1,107 @@
+syntax = "proto3";
+package svyaz.v1;
+
+message Empty {}
+message WorkspaceRole { string workspace_id = 1; string role_id = 2; string code = 3; }
+message Context {
+  string user_id = 1;
+  string request_id = 2;
+  optional string session_id = 3;
+  repeated WorkspaceRole workspace_roles = 4;
+}
+message Ids { repeated string ids = 1; }
+message Id { string id = 1; }
+message Flag { bool value = 1; }
+message Operation {
+  Context context = 1;
+  string name = 2;
+  bytes input_json = 3;
+}
+message StatisticsRequest { Context context = 1; string workspace_id = 2; }
+message Result { bytes data_json = 1; }
+message Credentials { bytes input_json = 1; string ip = 2; }
+message Authentication { optional string authorization = 1; string request_id = 2; }
+message Session { string user_id = 1; string session_id = 2; }
+message Roles { repeated WorkspaceRole roles = 1; }
+message SearchSource { string type = 1; string id = 2; string occurred_at = 3; }
+message SearchDocument {
+  string id = 1;
+  string source_type = 2;
+  string workspace_id = 3;
+  string conversation_id = 4;
+  string title = 5;
+  optional string snippet = 6;
+  string source_version = 7;
+  string occurred_at = 8;
+}
+message SearchProjection { SearchDocument document = 1; }
+
+service Identity {
+  rpc Ping(Empty) returns (Empty);
+  rpc Snapshot(Context) returns (Result);
+  rpc Execute(Operation) returns (Result);
+  rpc UserExists(Id) returns (Flag);
+  rpc Login(Credentials) returns (Result);
+  rpc Register(Credentials) returns (Result);
+  rpc Authenticate(Authentication) returns (Context);
+  rpc Logout(Session) returns (Flag);
+}
+
+service Workspace {
+  rpc Ping(Empty) returns (Empty);
+  rpc Snapshot(Context) returns (Result);
+  rpc Execute(Operation) returns (Result);
+  rpc Query(Operation) returns (Result);
+  rpc Statistics(StatisticsRequest) returns (Result);
+  rpc ActiveMembers(Id) returns (Ids);
+  rpc RolesForUser(Id) returns (Roles);
+}
+
+service Messaging {
+  rpc Ping(Empty) returns (Empty);
+  rpc Snapshot(Context) returns (Result);
+  rpc Execute(Operation) returns (Result);
+  rpc Query(Operation) returns (Result);
+  rpc Statistics(StatisticsRequest) returns (Result);
+  rpc MessageRecipients(Id) returns (Ids);
+  rpc SearchProjection(SearchSource) returns (.svyaz.v1.SearchProjection);
+}
+
+service Files {
+  rpc Ping(Empty) returns (Empty);
+  rpc Snapshot(Context) returns (Result);
+  rpc Execute(Operation) returns (Result);
+  rpc Statistics(StatisticsRequest) returns (Result);
+}
+
+service Notifications {
+  rpc Ping(Empty) returns (Empty);
+  rpc Snapshot(Context) returns (Result);
+  rpc Execute(Operation) returns (Result);
+  rpc Query(Operation) returns (Result);
+}
+
+service Calls {
+  rpc Ping(Empty) returns (Empty);
+  rpc Snapshot(Context) returns (Result);
+  rpc Execute(Operation) returns (Result);
+  rpc Statistics(StatisticsRequest) returns (Result);
+  rpc RecordingUsesFile(Id) returns (Flag);
+}
+
+service Audit {
+  rpc Ping(Empty) returns (Empty);
+  rpc Snapshot(Context) returns (Result);
+  rpc Query(Operation) returns (Result);
+}
+
+service Presence {
+  rpc Ping(Empty) returns (Empty);
+  rpc Snapshot(Context) returns (Result);
+}
+
+service Search {
+  rpc Ping(Empty) returns (Empty);
+  rpc Snapshot(Context) returns (Result);
+  rpc Query(Operation) returns (Result);
+}

@@ -1,0 +1,54 @@
+schema: contracts/graphql/lab4.graphql
+generates:
+  packages/contracts/src/graphql-types.ts:
+    plugins:
+      - typescript
+      - typescript-resolvers
+    config:
+      enumsAsTypes: true
+      useTypeImports: true
+      mapperTypeSuffix: Model
+      mappers:
+        Workspace: './index#Workspace'
+        Membership: './index#Membership'
+        Role: './index#Role'
+        Session: './index#Session'
+        Device: './index#Device'
+        Conversation: './index#Conversation'
+        Message: './index#Message'
+        Attachment: './index#Attachment'
+        File: './index#FileRecord'
+        Call: './index#Call'
+        CallParticipant: './index#CallParticipant'
+        Recording: './index#Recording'
+        User: './index#User'
+        Permission: './index#Permission'
+        WorkspacePolicy: './index#Policy'
+        Team: './index#Team'
+      scalars:
+        ID: string
+        Long: string
+        DateTime: string
+        JSON: './json-value#JsonValue'
+  packages/contracts/src/graphql-validation.ts:
+    plugins:
+      - add:
+          content: "import { wireScalars } from './wire-scalars';"
+      - graphql-codegen-typescript-validation-schema
+    config:
+      schema: zodv4
+      strictObjectSchemas: true
+      enumsAsTypes: true
+      importFrom: ./graphql-types
+      schemaNamespacedImportName: Types
+      useTypeImports: true
+      scalarSchemas:
+        Int: wireScalars.Int
+        Boolean: wireScalars.Boolean
+        ID: wireScalars.ID
+        Long: wireScalars.Long
+        DateTime: wireScalars.DateTime
+        JSON: wireScalars.JSON
+
+hooks:
+  afterAllFileWrite: prettier --write

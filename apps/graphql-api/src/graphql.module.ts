@@ -11,7 +11,7 @@ import { RequestData } from './context/request-data';
 import { Composition } from './application/composition';
 import { GraphQLContext } from './context/create-context';
 import type { IncomingMessage } from 'node:http';
-import { LocalRuntime } from './local-runtime';
+import { GatewayRuntime } from './gateway-runtime';
 import { formatError } from './presentation/format-error';
 import { resolvers } from './presentation/resolvers';
 import { queryCost, queryLimits } from './presentation/query-limits';
@@ -30,14 +30,14 @@ const businessApi = !process.argv.includes('--read-only');
       inject: [CLIENTS],
       useFactory: (clients: Clients) => new RequestData(clients),
     },
-    LocalRuntime,
+    GatewayRuntime,
     {
       provide: CLIENTS,
-      inject: [LocalRuntime],
-      useFactory: (runtime: LocalRuntime) => runtime.clients,
+      inject: [GatewayRuntime],
+      useFactory: (runtime: GatewayRuntime) => runtime.clients,
     },
   ],
-  exports: [Composition, LocalRuntime],
+  exports: [Composition, GatewayRuntime],
 })
 class CompositionModule {}
 
@@ -47,8 +47,8 @@ class CompositionModule {}
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
       imports: [CompositionModule],
-      inject: [Composition, LocalRuntime],
-      useFactory: (composition: Composition, runtime: LocalRuntime) => ({
+      inject: [Composition, GatewayRuntime],
+      useFactory: (composition: Composition, runtime: GatewayRuntime) => ({
         typeDefs: [
           readFileSync(
             resolve(

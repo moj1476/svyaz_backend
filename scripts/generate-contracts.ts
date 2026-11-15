@@ -9,8 +9,8 @@ import {
   type InputValueDefinitionNode,
 } from 'graphql';
 import { format, resolveConfig } from 'prettier';
-import { backendRoot } from '../packages/config/src';
-import { mutationOwners } from '../packages/contracts/src/ownership';
+import { backendRoot } from '#config';
+import { mutationOwners } from '#contracts/ownership';
 
 const scalarTypes: Record<string, string> = {
   ID: 'string',
@@ -73,23 +73,19 @@ async function main() {
   const root = backendRoot(),
     schema = parse(readFileSync(resolve(root, 'contracts/graphql/lab4.graphql'), 'utf8'));
 
-  let inputs =
-    'export type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };\n';
-
-  const objects: Record<string, ReturnType<typeof wireFields>> = {},
-    enums: Record<string, string[]> = {};
+  const inputNames: string[] = [];
+  const enums: Record<string, string[]> = {};
 
   for (const definition of schema.definitions) {
     if (definition.kind === Kind.ENUM_TYPE_DEFINITION) {
       const values = definition.values?.map((value) => value.name.value) ?? [];
 
-      inputs += `export type ${definition.name.value} = ${values.map((value) => JSON.stringify(value)).join(' | ')};\n`;
       enums[definition.name.value] = values;
+      inputNames.push(definition.name.value);
     }
 
     if (definition.kind === Kind.INPUT_OBJECT_TYPE_DEFINITION) {
-      inputs += `export interface ${definition.name.value} {\n${definition.fields?.map(field).join('\n') ?? ''}\n}\n`;
-      objects[definition.name.value] = wireFields(definition.fields);
+      inputNames.push(definition.name.value);
     }
   }
 
@@ -111,6 +107,7 @@ export interface ReadState { conversationId: string; sequence: string; }
 export interface OperationError {code: string; message: string; field: string | null; retryable: boolean;}
 export interface CommandDefinitions {\n`;
 
+  const commandInputTypes: Record<string, string> = {};
   const commandSchemas: Record<string, ReturnType<typeof wireFields>> = {};
 
   for (const command of mutation.fields ?? []) {
@@ -133,8 +130,8 @@ export interface CommandDefinitions {\n`;
     if (!entity) throw new Error(`Отсутствует соответствие результата операции: ${name}`);
 
     commands += `${name}: { input: ${input}; output: {${entity[0]}: ${entity[1]}} };\n`;
-    commandSchemas[name] =
-      single && argument ? (objects[core(argument.type)] ?? {}) : wireFields(args);
+    if (single && argument) commandInputTypes[name] = core(argument.type);
+    commandSchemas[name] = single ? {} : wireFields(args);
   }
 
   commands += `}
@@ -176,7 +173,7 @@ export interface CommandClient {execute<N extends CommandName>(operation: N, inp
   querySchemas.messageReactions = { messageId: { type: 'ID!' } };
 
   const runtime = `export interface FieldSchema { type: string; default?: unknown; }
-export const inputObjects: Record<string, Record<string, FieldSchema>> = ${JSON.stringify(objects)};
+export const commandInputTypes: Record<string, string> = ${JSON.stringify(commandInputTypes)};
 export const enumValues: Record<string, readonly string[]> = ${JSON.stringify(enums)};
 export const commandSchemas: Record<string, Record<string, FieldSchema>> = ${JSON.stringify(commandSchemas)};
 export const querySchemas: Record<string, Record<string, FieldSchema>> = ${JSON.stringify(querySchemas)};\n`;
@@ -184,7 +181,7 @@ export const querySchemas: Record<string, Record<string, FieldSchema>> = ${JSON.
   const config = await resolveConfig(resolve(root, '.prettierrc.json'));
 
   for (const [name, text] of Object.entries({
-    'inputs.ts': inputs,
+    'inputs.ts': `export type { ${inputNames.join(', ')} } from './graphql-types';\nexport type { JsonValue } from './json-value';\n`,
     'command-map.ts': commands,
     'input-schema.ts': runtime,
   })) {

@@ -1,11 +1,11 @@
-import type { Clients } from '../../../../packages/contracts/src';
-import { queryClient } from '../../../../packages/runtime/src/client-dispatch';
-import { queryOwners } from '../../../../packages/contracts/src/commands';
-import { DomainError, uuid } from '../../../../packages/contracts/src/errors';
-import { connection, type PageArgs } from '../../../../packages/contracts/src/pagination';
-import { parseQueryInput } from '../../../../packages/contracts/src/parse-input';
-import { isQueryName } from '../../../../packages/contracts/src/queries';
-import { normalizeInput } from '../../../../packages/contracts/src/validation';
+import type { Clients } from '#contracts';
+import { queryClient } from '#runtime/client-dispatch';
+import { queryOwners } from '#contracts/commands';
+import { DomainError, uuid } from '#contracts/errors';
+import { connection, type PageArgs } from '#contracts/pagination';
+import { parseQueryInput } from '#contracts/parse-input';
+import { isQueryName } from '#contracts/queries';
+import { normalizeInput } from '#contracts/validation';
 import type { QueryContext } from '../context/query-context';
 import type { RequestData } from '../context/request-data';
 import type { Access } from './access';
@@ -49,9 +49,6 @@ export async function query(
 
   if (isQueryName(name)) {
     const owner = queryOwners[name];
-
-    if (context.failed === owner)
-      throw new DomainError('UNAVAILABLE', 'Учебный отказ источника');
 
     const client = clients[owner];
 

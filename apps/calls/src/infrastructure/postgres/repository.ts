@@ -1,13 +1,13 @@
-import type { CallsData } from '../../../../../packages/contracts/src';
-import type { Prisma } from '../../../../../generated/calls/client';
-import type { ReadScope } from '../../../../../packages/contracts/src/read-scope';
-import { databaseFor } from '../../../../../packages/storage/src/prisma';
+import type { CallsData } from '#contracts';
+import type { Prisma } from '#generated/calls/client';
+import type { ReadScope } from '#contracts/read-scope';
+import { databaseFor } from '#storage/prisma';
 import {
   TransactionalRepository,
   type CommandSelection,
-} from '../../../../../packages/storage/src/transactional-repository';
-import type { RequestContext } from '../../../../../packages/contracts/src';
-import { canonical, assertUpdated } from '../../../../../packages/storage/src/values';
+} from '#storage/transactional-repository';
+import type { RequestContext } from '#contracts';
+import { canonical, assertUpdated } from '#storage/values';
 import {
   fromCall,
   toCall,

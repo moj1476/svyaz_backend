@@ -1,35 +1,64 @@
-import { required } from '../../../../../packages/config/src';
+import type { SearchDocument } from '#contracts';
 import type {
-  ReadRepository,
-  SearchData,
-  SearchDocument,
-} from '../../../../../packages/contracts/src';
-import type { ReadScope } from '../../../../../packages/contracts/src/read-scope';
+  SearchRepository,
+  SearchSelection,
+} from '../../application/search-repository';
+import { openSearchClient, searchIndex } from './client';
 
-export class Repository implements ReadRepository<SearchData> {
-  async load(scope?: ReadScope): Promise<SearchData> {
-    const response = await fetch(
-      `${required('OPENSEARCH_URL')}/svyaz_documents/_search`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          size: 1000,
-          query: { terms: { workspaceId: scope?.workspaceIds ?? [] } },
-        }),
-        signal: AbortSignal.timeout(5000),
+export class Repository implements SearchRepository {
+  private readonly client = openSearchClient();
+
+  async find(selection: SearchSelection): Promise<SearchDocument[]> {
+    const {
+      workspaceIds,
+      text,
+      types,
+      conversationIds,
+      from,
+      to,
+      field,
+      direction,
+      after,
+      limit,
+    } = selection;
+    if (!workspaceIds.length || types?.length === 0 || conversationIds?.length === 0)
+      return [];
+
+    const filter = [
+      { terms: { workspaceId: [...workspaceIds] } },
+      ...(types ? [{ terms: { sourceType: [...types] } }] : []),
+      ...(conversationIds ? [{ terms: { conversationId: [...conversationIds] } }] : []),
+      ...(from || to ? [{ range: { occurredAt: { gte: from, lte: to } } }] : []),
+    ];
+    const order = direction === 'ASC' ? 'asc' : 'desc';
+    const pattern = text
+      ?.toLowerCase()
+      .replace(/[\\*?]/g, (character) => '\\' + character);
+    const result = await this.client.search({
+      index: searchIndex,
+      body: {
+        size: limit,
+        query: {
+          bool: {
+            filter,
+            must: pattern
+              ? [{ wildcard: { searchText: { value: '*' + pattern + '*' } } }]
+              : [],
+          },
+        },
+        sort:
+          field === 'TITLE' ? [{ 'title.raw': order }, { id: order }] : [{ id: order }],
+        search_after: after
+          ? field === 'TITLE'
+            ? [after.key, after.id]
+            : [after.id]
+          : undefined,
       },
-    );
-
-    if (!response.ok)
-      throw new Error(`Не удалось прочитать данные OpenSearch (${response.status})`);
-
-    const result = (await response.json()) as {
-      hits: { hits: { _source: SearchDocument }[] };
-    };
-
-    return { documents: result.hits.hits.map((h) => h._source) };
+    });
+    return result.body.hits.hits.map((hit) => hit._source as SearchDocument);
   }
 
-  async close() {}
+  async close() {
+    await this.client.close();
+  }
 }

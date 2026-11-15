@@ -1,61 +1,71 @@
-import type { RequestContext, SearchData } from '../../../../../packages/contracts/src';
-import type { AccessClient } from '../../../../../packages/contracts/src/access';
-import { DomainError } from '../../../../../packages/contracts/src/errors';
-import type {
-  QueryInput,
-  QueryOutput,
-} from '../../../../../packages/contracts/src/queries';
-import { identifier, text } from '../../../../../packages/runtime/src/validation';
-import {
-  dateRange,
-  inDates,
-  page,
-  type ListOptions,
-} from '../../../../../packages/runtime/src/read-processing';
+import type { RequestContext, SearchDocument } from '#contracts';
+import type { AccessClient } from '#contracts/access';
+import { cursorPlan } from '#contracts/cursor';
+import { DomainError } from '#contracts/errors';
+import type { QueryInput, QueryOutput } from '#contracts/queries';
+import { identifier, text } from '#runtime/validation';
+import { dateRange } from '#runtime/read-processing';
+import type { SearchRepository } from '../search-repository';
 
 export async function search(
-  policy: { access: AccessClient },
+  repository: SearchRepository,
+  access: AccessClient,
   input: QueryInput<'search'>,
   context: RequestContext,
-  snapshot: (context: RequestContext) => Promise<SearchData>,
-  _requireWorkspace: (context: RequestContext, id: string) => Promise<void>,
 ): Promise<QueryOutput<'search'>> {
-  const searchInput = input.input,
-    workspaceId = identifier(searchInput.workspaceId);
-
-  if (!(await policy.access.workspaceIds(context)).includes(workspaceId))
+  const filter = input.input;
+  const workspaceId = identifier(filter.workspaceId);
+  if (!(await access.workspaceIds(context)).includes(workspaceId))
     throw new DomainError('FORBIDDEN', 'Пространство недоступно');
 
-  dateRange(searchInput);
-
-  const search = text(searchInput.text, 'text', 200).toLowerCase();
-  const types = searchInput.types ?? ['MESSAGE', 'FILE', 'USER', 'CHANNEL'];
-
-  if (!Array.isArray(types) || !types.every((t) => typeof t === 'string'))
-    throw new DomainError('VALIDATION', 'types: ожидается список строк');
-
-  if (!types.every((t) => ['MESSAGE', 'FILE', 'USER', 'CHANNEL'].includes(t)))
+  dateRange(filter);
+  const term = text(filter.text, 'text', 200);
+  if (
+    filter.types?.some((type) => !['MESSAGE', 'FILE', 'USER', 'CHANNEL'].includes(type))
+  )
     throw new DomainError('VALIDATION', 'Неверный тип поиска');
 
-  const conversations = searchInput.conversationIds as string[] | undefined;
-
-  conversations?.forEach((id) => identifier(id));
-
-  const data = await snapshot(context),
-    rows = data.documents.filter(
-      (data) =>
-        data.workspaceId === workspaceId &&
-        types.includes(data.sourceType) &&
-        (!conversations || conversations.includes(data.conversationId ?? '')) &&
-        (data.title + ' ' + (data.snippet ?? '')).toLowerCase().includes(search) &&
-        inDates(data.occurredAt, searchInput),
-    );
-
-  return page(
-    rows,
-    { ...input, filter: searchInput } as ListOptions,
+  const plan = cursorPlan(
+    { ...input, filter },
     `search:${context.userId}`,
-    { ID: (data) => data.id, TITLE: (data) => data.title },
+    { ID: 'string', TITLE: 'string' },
     'ID',
   );
+  const field = plan.field === 'TITLE' ? 'TITLE' : 'ID';
+  const key = (document: SearchDocument) =>
+    field === 'TITLE' ? document.title : document.id;
+  const found: SearchDocument[] = [];
+  let after = plan.after;
+  const limit = Math.max(50, plan.first + 1);
+  while (found.length <= plan.first) {
+    const batch = await repository.find({
+      workspaceIds: [workspaceId],
+      text: term,
+      types: filter.types ?? undefined,
+      conversationIds: filter.conversationIds ?? undefined,
+      from: filter.from ?? undefined,
+      to: filter.to ?? undefined,
+      field,
+      direction: plan.direction === 'DESC' ? 'DESC' : 'ASC',
+      after,
+      limit,
+    });
+    for (const document of batch) {
+      if (await access.searchDocument(context, document)) found.push(document);
+      if (found.length > plan.first) break;
+    }
+    const last = batch.at(-1);
+    if (!last || batch.length < limit) break;
+    after = { key: key(last), id: last.id };
+  }
+  const edges = found
+    .slice(0, plan.first)
+    .map((node) => ({ node, cursor: plan.encode(key(node), node.id) }));
+  return {
+    edges,
+    pageInfo: {
+      hasNextPage: found.length > plan.first,
+      endCursor: edges.at(-1)?.cursor ?? null,
+    },
+  };
 }

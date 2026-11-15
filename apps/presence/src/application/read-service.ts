@@ -3,8 +3,8 @@ import type {
   ReadRepository,
   RequestContext,
   ServiceClient,
-} from '../../../../packages/contracts/src';
-import type { AccessClient } from '../../../../packages/contracts/src/access';
+} from '#contracts';
+import type { AccessClient } from '#contracts/access';
 
 export class ReadService implements ServiceClient<'presence'> {
   constructor(

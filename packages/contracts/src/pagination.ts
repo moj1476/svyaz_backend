@@ -1,8 +1,8 @@
 import { DomainError } from './errors';
 
 export interface PageArgs {
-  first?: number;
-  after?: string;
+  first?: number | null;
+  after?: string | null;
 }
 
 export function connection<T>(

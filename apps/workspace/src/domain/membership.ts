@@ -1,4 +1,4 @@
-import { DomainError } from '../../../../packages/contracts/src/errors';
+import { DomainError } from '#contracts/errors';
 
 export function assertOwnerTransition(
   actorRole: string,

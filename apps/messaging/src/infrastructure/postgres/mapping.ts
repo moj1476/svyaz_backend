@@ -5,8 +5,8 @@ import type {
   Message as DbMessage,
   Reaction as DbReaction,
   MessageRevision as DbMessageRevision,
-} from '../../../../../generated/messaging/client';
-import type { MessagingData } from '../../../../../packages/contracts/src';
+} from '#generated/messaging/client';
+import type { MessagingData } from '#contracts';
 
 type Conversation = NonNullable<MessagingData['conversations']>[number];
 

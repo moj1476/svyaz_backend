@@ -1,9 +1,9 @@
-import type { MessagingData } from '../../../../../packages/contracts/src';
+import type { MessagingData } from '#contracts';
 
-import type { Prisma } from '../../../../../generated/messaging/client';
+import type { Prisma } from '#generated/messaging/client';
 
-import { type CommandSelection } from '../../../../../packages/storage/src/transactional-repository';
-import type { RequestContext } from '../../../../../packages/contracts/src';
+import { type CommandSelection } from '#storage/transactional-repository';
+import type { RequestContext } from '#contracts';
 
 import { loadState } from './state-loader';
 import type { StateSelection } from './state-loader';

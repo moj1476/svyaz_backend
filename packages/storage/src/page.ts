@@ -1,10 +1,6 @@
 import { wireValue, type SqlExecutor } from './prisma';
-import {
-  cursorPlan,
-  type CursorKind,
-  type CursorOptions,
-} from '../../contracts/src/cursor';
-import type { Connection } from '../../contracts/src/queries';
+import { cursorPlan, type CursorKind, type CursorOptions } from '#contracts/cursor';
+import type { Connection } from '#contracts/queries';
 
 export interface SqlPageField<T> {
   sql: string;

@@ -1,14 +1,8 @@
-import type {
-  MessagingData,
-  RequestContext,
-} from '../../../../../packages/contracts/src';
-import type {
-  CommandInput,
-  CommandOutput,
-} from '../../../../../packages/contracts/src/command-map';
-import { DomainError } from '../../../../../packages/contracts/src/errors';
-import { text } from '../../../../../packages/runtime/src/validation';
-import { version } from '../../../../../packages/runtime/src/version';
+import type { MessagingData, RequestContext } from '#contracts';
+import type { CommandInput, CommandOutput } from '#contracts/command-map';
+import { DomainError } from '#contracts/errors';
+import { text } from '#runtime/validation';
+import { version } from '#runtime/version';
 import type { MessagingPolicy } from '../policies/messaging.policy';
 
 export async function updateConversation(

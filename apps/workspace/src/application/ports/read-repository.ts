@@ -1,7 +1,4 @@
-import type {
-  QueryInput,
-  QueryOutput,
-} from '../../../../../packages/contracts/src/queries';
+import type { QueryInput, QueryOutput } from '#contracts/queries';
 
 export interface WorkspaceReadRepository {
   workspaceVisible(workspaceId: string, userId: string): Promise<boolean>;

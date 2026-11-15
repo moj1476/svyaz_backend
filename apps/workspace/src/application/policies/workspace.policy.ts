@@ -1,11 +1,8 @@
-import type {
-  RequestContext,
-  WorkspaceData,
-} from '../../../../../packages/contracts/src';
-import type { AccessClient } from '../../../../../packages/contracts/src/access';
-import type { TransactionStore } from '../../../../../packages/contracts/src/commands';
-import { DomainError } from '../../../../../packages/contracts/src/errors';
-import { identifier } from '../../../../../packages/runtime/src/validation';
+import type { RequestContext, WorkspaceData } from '#contracts';
+import type { AccessClient } from '#contracts/access';
+import type { TransactionStore } from '#contracts/commands';
+import { DomainError } from '#contracts/errors';
+import { identifier } from '#runtime/validation';
 import type { WorkspaceReadRepository } from '../ports/read-repository';
 
 export class WorkspacePolicy {

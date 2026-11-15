@@ -1,8 +1,5 @@
-import type { Conversation, Message } from '../../../../../packages/contracts/src';
-import type {
-  QueryInput,
-  QueryOutput,
-} from '../../../../../packages/contracts/src/queries';
+import type { Conversation, Message } from '#contracts';
+import type { QueryInput, QueryOutput } from '#contracts/queries';
 
 export interface MessagingReadRepository {
   getConversationForUser(

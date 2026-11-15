@@ -1,7 +1,7 @@
 import { spawnSync } from 'node:child_process';
-import { backendRoot } from '../packages/config/src';
-import { sqlServices } from '../packages/contracts/src';
-import { databaseUrl, type SqlService } from '../packages/storage/src/connection';
+import { backendRoot } from '#config';
+import { sqlServices } from '#contracts';
+import { databaseUrl, type SqlService } from '#storage/connection';
 
 export function prisma(service: SqlService, args: string[], offline = false): void {
   const result = spawnSync(

@@ -1,24 +1,23 @@
-import type { Call, CallParticipant } from '../../../../../packages/contracts/src';
 import type { RequestData } from '../../context/request-data';
-import type { FieldResolvers } from './types';
+import { requiredRelation, type FieldResolvers } from './types';
 
 export function callsFields(source: RequestData): FieldResolvers {
   return {
     Call: {
       participants: async (parent, _a, context) => {
         return (await source.data('calls', context)).participants.filter(
-          (p) => p.callId === (parent as Call).id,
+          (p) => p.callId === parent.id,
         );
       },
       recordings: async (parent, _a, context) => {
         return (await source.data('calls', context)).recordings.filter(
-          (r) => r.callId === (parent as Call).id,
+          (r) => r.callId === parent.id,
         );
       },
     },
     CallParticipant: {
       user: async (parent, _a, context) => {
-        return source.user(context, (parent as CallParticipant).userId);
+        return requiredRelation(await source.user(context, parent.userId));
       },
     },
   };

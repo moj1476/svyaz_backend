@@ -1,8 +1,8 @@
-import type { MessagingData } from '../../../../../packages/contracts/src';
+import type { MessagingData } from '#contracts';
 
-import type { Prisma } from '../../../../../generated/messaging/client';
+import type { Prisma } from '#generated/messaging/client';
 
-import { canonical, assertUpdated } from '../../../../../packages/storage/src/values';
+import { canonical, assertUpdated } from '#storage/values';
 import {
   toConversation,
   toConversationMember,
@@ -29,7 +29,10 @@ export async function saveState(
       else {
         const updated = await client.conversation.updateMany({
           where: { id: row.id, version: BigInt(prior.version) },
-          data,
+          data: {
+            ...data,
+            version: { increment: BigInt(row.version) - BigInt(prior.version) },
+          },
         });
 
         assertUpdated(updated.count);
@@ -76,7 +79,10 @@ export async function saveState(
       else {
         const updated = await client.message.updateMany({
           where: { id: row.id, version: BigInt(prior.version) },
-          data,
+          data: {
+            ...data,
+            version: { increment: BigInt(row.version) - BigInt(prior.version) },
+          },
         });
 
         assertUpdated(updated.count);

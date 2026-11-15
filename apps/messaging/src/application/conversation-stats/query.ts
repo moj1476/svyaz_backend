@@ -1,13 +1,7 @@
-import type {
-  MessagingData,
-  RequestContext,
-} from '../../../../../packages/contracts/src';
-import { DomainError } from '../../../../../packages/contracts/src/errors';
-import type {
-  QueryInput,
-  QueryOutput,
-} from '../../../../../packages/contracts/src/queries';
-import { identifier } from '../../../../../packages/runtime/src/validation';
+import type { MessagingData, RequestContext } from '#contracts';
+import { DomainError } from '#contracts/errors';
+import type { QueryInput, QueryOutput } from '#contracts/queries';
+import { identifier } from '#runtime/validation';
 import type { MessagingPolicy } from '../policies/messaging.policy';
 
 export async function conversationStats(

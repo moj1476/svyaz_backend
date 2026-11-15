@@ -1,8 +1,8 @@
-import type { Message } from '../../../../../../packages/contracts/src';
-import type { QueryInput } from '../../../../../../packages/contracts/src/queries';
-import { addFilter, selectPage } from '../../../../../../packages/storage/src/page';
+import type { Message } from '#contracts';
+import type { QueryInput } from '#contracts/queries';
+import { addFilter, selectPage } from '#storage/page';
 
-import type { SqlExecutor } from '../../../../../../packages/storage/src/prisma';
+import type { SqlExecutor } from '#storage/prisma';
 export async function listMessages(
   sql: SqlExecutor,
   input: QueryInput<'messages'> | QueryInput<'thread'>,

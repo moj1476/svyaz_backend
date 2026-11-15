@@ -1,4 +1,4 @@
-import type { ServiceDatabase } from '../../../../../../packages/storage/src/prisma';
+import type { ServiceDatabase } from '#storage/prisma';
 export async function aggregate(db: ServiceDatabase<'workspace'>, workspaceId: string) {
   const [totalMembers, activeMembers, pendingInvites] = await db.$transaction(
     [

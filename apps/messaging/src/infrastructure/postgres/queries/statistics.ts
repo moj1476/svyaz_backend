@@ -1,6 +1,6 @@
-import type { ConversationStats } from '../../../../../../packages/contracts/src/queries';
+import type { ConversationStats } from '#contracts/queries';
 
-import type { ServiceDatabase } from '../../../../../../packages/storage/src/prisma';
+import type { ServiceDatabase } from '#storage/prisma';
 export async function aggregate(db: ServiceDatabase<'messaging'>, workspaceId: string) {
   const now = new Date();
   const [channelCount, messagesLast30Days] = await db.$transaction(

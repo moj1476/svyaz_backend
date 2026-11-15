@@ -1,4 +1,4 @@
-import { DomainError } from '../../contracts/src/errors';
+import { DomainError } from '#contracts/errors';
 export function exactVersion(value: unknown): bigint {
   if (
     typeof value !== 'string' ||

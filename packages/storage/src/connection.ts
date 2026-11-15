@@ -1,5 +1,5 @@
-import { required } from '../../config/src';
-import { sqlServices } from '../../contracts/src';
+import { required } from '#config';
+import { sqlServices } from '#contracts';
 
 export type SqlService = (typeof sqlServices)[number];
 

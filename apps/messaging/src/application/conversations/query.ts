@@ -1,13 +1,7 @@
-import type {
-  MessagingData,
-  RequestContext,
-} from '../../../../../packages/contracts/src';
-import type {
-  QueryInput,
-  QueryOutput,
-} from '../../../../../packages/contracts/src/queries';
-import { identifier } from '../../../../../packages/runtime/src/validation';
-import { page } from '../../../../../packages/runtime/src/read-processing';
+import type { MessagingData, RequestContext } from '#contracts';
+import type { QueryInput, QueryOutput } from '#contracts/queries';
+import { identifier } from '#runtime/validation';
+import { page } from '#runtime/read-processing';
 import type { MessagingPolicy } from '../policies/messaging.policy';
 
 export async function conversations(

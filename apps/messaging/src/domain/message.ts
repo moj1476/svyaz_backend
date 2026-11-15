@@ -1,5 +1,5 @@
-import { DomainError } from '../../../../packages/contracts/src/errors';
-import type { Message } from '../../../../packages/contracts/src';
+import { DomainError } from '#contracts/errors';
+import type { Message } from '#contracts';
 
 export function assertMessagePresent(message: Pick<Message, 'status'>): void {
   if (message.status === 'DELETED')

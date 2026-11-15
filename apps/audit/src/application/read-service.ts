@@ -3,9 +3,9 @@ import type {
   ReadRepository,
   RequestContext,
   ServiceClient,
-} from '../../../../packages/contracts/src';
-import type { AccessClient } from '../../../../packages/contracts/src/access';
-import { queryDispatcher } from '../../../../packages/runtime/src/query-dispatch';
+} from '#contracts';
+import type { AccessClient } from '#contracts/access';
+import { queryDispatcher } from '#runtime/query-dispatch';
 import { auditEvents } from './audit-events/query';
 import type { AuditReadRepository } from './ports/read-repository';
 

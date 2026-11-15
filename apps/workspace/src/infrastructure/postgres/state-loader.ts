@@ -1,7 +1,7 @@
-import type { WorkspaceData } from '../../../../../packages/contracts/src';
+import type { WorkspaceData } from '#contracts';
 
-import type { Prisma } from '../../../../../generated/workspace/client';
-import type { ReadScope } from '../../../../../packages/contracts/src/read-scope';
+import type { Prisma } from '#generated/workspace/client';
+import type { ReadScope } from '#contracts/read-scope';
 
 import {
   fromWorkspace,

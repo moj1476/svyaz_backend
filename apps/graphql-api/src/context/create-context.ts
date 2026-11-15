@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import type { LocalRuntime } from '../local-runtime';
+import type { GatewayRuntime } from '../gateway-runtime';
 import type { QueryContext } from './query-context';
 
 export class GraphQLContext {
@@ -7,7 +7,7 @@ export class GraphQLContext {
   private pending?: Promise<QueryContext>;
 
   constructor(
-    readonly runtime: LocalRuntime,
+    readonly runtime: GatewayRuntime,
     private readonly authorization: string | undefined,
     readonly ip: string,
   ) {}

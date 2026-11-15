@@ -1,14 +1,8 @@
 import { randomUUID } from 'node:crypto';
-import type {
-  RequestContext,
-  WorkspaceData,
-} from '../../../../../packages/contracts/src';
-import type {
-  CommandInput,
-  CommandOutput,
-} from '../../../../../packages/contracts/src/command-map';
-import { DomainError } from '../../../../../packages/contracts/src/errors';
-import { identifier, text } from '../../../../../packages/runtime/src/validation';
+import type { RequestContext, WorkspaceData } from '#contracts';
+import type { CommandInput, CommandOutput } from '#contracts/command-map';
+import { DomainError } from '#contracts/errors';
+import { identifier, text } from '#runtime/validation';
 import type { WorkspacePolicy } from '../policies/workspace.policy';
 
 export async function createTeam(
